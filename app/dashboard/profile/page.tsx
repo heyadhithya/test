@@ -27,7 +27,7 @@ export default async function ProfilePage() {
     return (
         <div className="space-y-8 max-w-xl">
             <div>
-                <h1 className="text-2xl font-bold text-white">Profile</h1>
+                <h1 className="text-2xl font-bold text-[var(--color-neon-text)]">Profile</h1>
                 <p className="text-sm text-[var(--color-neon-muted)] mt-1">Your Sairam Certify account information.</p>
             </div>
 
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
                         </div>
                     )}
                     <div>
-                        <p className="text-xl font-bold text-white">{user.name ?? "Unnamed User"}</p>
+                        <p className="text-xl font-bold text-[var(--color-neon-text)]">{user.name ?? "Unnamed User"}</p>
                         <p className="text-sm text-[var(--color-neon-muted)]">Sairam Certify Member</p>
                     </div>
                 </div>
@@ -56,15 +56,15 @@ export default async function ProfilePage() {
                         <div key={row.label} className="flex items-center gap-4 py-4">
                             <span className="text-[var(--color-neon-muted)]">{row.icon}</span>
                             <span className="text-sm text-[var(--color-neon-muted)] w-28 shrink-0">{row.label}</span>
-                            <span className="text-sm text-white font-medium truncate">{row.value}</span>
+                            <span className="text-sm text-[var(--color-neon-text)] font-medium truncate">{row.value}</span>
                         </div>
                     ))}
                 </div>
             </div>
 
             <div className="glass-card p-5 border-amber-400/20 bg-amber-400/5">
-                <p className="text-sm text-amber-400 font-medium mb-1">Want to change your password?</p>
-                <p className="text-xs text-[var(--color-neon-muted)]">Password changes are not yet available in the dashboard. Contact support at <a href="mailto:dev.om@outlook.com" className="text-white hover:underline">dev.om@outlook.com</a>.</p>
+                <p className="text-sm text-amber-800 font-medium mb-1">Want to change your password?</p>
+                <p className="text-xs text-[var(--color-neon-muted)]">Password changes are not available in this personal pilot. Never send your password in chat or email.</p>
             </div>
         </div>
     );

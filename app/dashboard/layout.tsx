@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 email: session.user.email,
                 image: session.user.image,
             }} />
-            <main className="flex-1 min-w-0 overflow-y-auto p-6 md:p-10">
+            <main className="flex-1 min-w-0 overflow-y-auto p-6 pt-20 md:p-10">
                 {children}
             </main>
         </div>

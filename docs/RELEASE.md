@@ -1,3 +1,11 @@
+## White dashboard and owner analytics update
+
+The dashboard now uses white drawer/card surfaces with dark text, a restrained backdrop, native modal keyboard containment, Escape dismissal, and visible input focus. Existing layout is retained; no new client dependency or tracking service was added. Original owner screenshot is private and excluded from the repository. Synthetic visual checks cover 360/390/768/1280 widths, focus, error and loading states without horizontal overflow.
+
+Owner-only server aggregates show saved, issued/active, pending, failed, revoked, and issued records created this UTC month. Every read filters the authenticated immutable user ID. Recent records are bounded to 30; verification scans are explicitly untracked. Cards render safely on the server and only expose PDF/verification actions for issued, nonrevoked records with a PDF. Downloads use the owner-authorized private endpoint. Unavailable deletion is removed.
+
+Validation: 37 tests; clean lint/type/build; npm audit zero; independent review cleared after fixing nonempty card server rendering. Browser editor regression passed template edit, XLSX/CSV import, preview, two synthetic guest PDFs, and PDF/ZIP downloads. No live owner session was accessed, no authenticated issuance was simulated, and monthly capacity remains unproven. Existing sample dataset contains TWO fictional rows.
+
 # Current personal password pilot release
 
 This section supersedes historical email-link activation instructions below. Resend is OFF: the active NextAuth provider is Credentials only. No sending key or mail is required. Existing database mapping commit04cf482 is retained. White primary surfaces and the exact unlinked footer “Built from Adhithya.com” preserve existing layout/handlers and MIT notices.

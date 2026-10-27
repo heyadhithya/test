@@ -1,7 +1,7 @@
 import CertificatesGrid from "@/components/CertificatesGrid";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { ownerDashboard } from "@/lib/dashboard-data";
 import { AlertTriangle,ArrowRight,Award,Calendar,ExternalLink,ShieldCheck,TrendingUp } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
@@ -24,17 +24,14 @@ export default async function DashboardPage() {
         redirect("/login");
     }
 
-    let certificates: Awaited<ReturnType<typeof prisma.certificate.findMany>>;
+    let data: Awaited<ReturnType<typeof ownerDashboard>>;
     try {
-        certificates = await prisma.certificate.findMany({
-            where: { userId: session.user.id },
-            orderBy: { createdAt: "desc" },
-        });
-    } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        data = await ownerDashboard(session.user.id);
+    } catch {
+        console.error("Dashboard data unavailable");
         // Redirect to an error page or show a user-friendly message
         return (
-            <div className="space-y-8 max-w-5xl text-red-400">
+            <div className="space-y-8 max-w-5xl text-red-700">
                 <h1 className="text-2xl font-bold">Error loading dashboard</h1>
                 <p>There was an issue fetching your certificates. Please try again later.</p>
             </div>
@@ -42,17 +39,15 @@ export default async function DashboardPage() {
     }
 
 
-        const thisMonth = certificates.filter(
-            c => new Date(c.createdAt).getMonth() === new Date().getMonth()
-        ).length;
-        const revoked = certificates.filter(c => c.revoked).length;
-        const valid = certificates.length - revoked;
+        const { certificates, total, issued, pending, failed, revoked, thisMonth } = data;
 
         const STATS = [
-            { label: "Total Generated", value: certificates.length, icon: Award, color: "var(--color-neon-primary)", bg: "rgba(0,229,153,0.08)" },
-            { label: "This Month", value: thisMonth, icon: Calendar, color: "#007acc", bg: "rgba(0,122,204,0.08)" },
-            { label: "Valid / Active", value: valid, icon: TrendingUp, color: "#10b981", bg: "rgba(16,185,129,0.08)" },
+            { label: "Saved records", value: total, icon: Award, color: "var(--color-neon-primary)", bg: "rgba(0,229,153,0.08)" },
+            { label: "Issued records created this month (UTC)", value: thisMonth, icon: Calendar, color: "#007acc", bg: "rgba(0,122,204,0.08)" },
+            { label: "Issued / Active", value: issued, icon: TrendingUp, color: "#10b981", bg: "rgba(16,185,129,0.08)" },
             { label: "Revoked", value: revoked, icon: AlertTriangle, color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
+            { label: "Pending", value: pending, icon: Calendar, color: "#506270", bg: "#f4f7f9" },
+            { label: "Failed", value: failed, icon: AlertTriangle, color: "#b91c1c", bg: "#fef2f2" },
         ];
 
         return (
@@ -60,9 +55,9 @@ export default async function DashboardPage() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Certificates</h1>
+                        <h1 className="text-2xl font-bold text-[var(--color-neon-text)]">Certificates</h1>
                         <p className="text-sm text-[var(--color-neon-muted)] mt-1">
-                            {certificates.length} certificate{certificates.length !== 1 ? "s" : ""} generated on your account
+                            {total} saved certificate record{total !== 1 ? "s" : ""} on your account
                         </p>
                     </div>
                     <Link href="/app" className="btn-primary py-2.5 px-5 flex items-center gap-2 text-sm w-fit">
@@ -80,10 +75,12 @@ export default async function DashboardPage() {
                                     <s.icon className="w-4 h-4" style={{ color: s.color }} />
                                 </div>
                             </div>
-                            <p className="text-3xl font-black text-white">{s.value}</p>
+                            <p className="text-3xl font-black text-[var(--color-neon-text)]">{s.value}</p>
                         </div>
                     ))}
                 </div>
+
+                <p className="text-sm text-[var(--color-neon-muted)]">Verification scan counts are unavailable: visits are not tracked. Counts above come from your saved records only.</p>
 
                 {/* Empty state or grid */}
                 {certificates.length === 0 ? (
@@ -91,7 +88,7 @@ export default async function DashboardPage() {
                         <div className="w-16 h-16 rounded-2xl bg-[var(--color-neon-primary)]/08 border border-[var(--color-neon-primary)]/20 flex items-center justify-center mb-5">
                             <Award className="w-8 h-8 text-[var(--color-neon-primary)] opacity-70" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">No certificates yet</h3>
+                        <h3 className="text-xl font-bold text-[var(--color-neon-text)] mb-2">No certificates yet</h3>
                         <p className="text-sm text-[var(--color-neon-muted)] max-w-sm mb-6">
                             Head to the generator to create your first batch from a PDF template and Excel sheet.
                         </p>
@@ -103,7 +100,7 @@ export default async function DashboardPage() {
                     <>
                         {/* Table header */}
                         <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-semibold text-white">Recent Certificates</h2>
+                            <h2 className="text-sm font-semibold text-[var(--color-neon-text)]">Recent Certificates</h2>
                             <span className="text-xs text-[var(--color-neon-muted)]">Showing {Math.min(certificates.length, 10)} records</span>
                         </div>
 
@@ -129,7 +126,7 @@ export default async function DashboardPage() {
                                                             {cert.name.charAt(0).toUpperCase()}
                                                         </span>
                                                     </div>
-                                                    <span className="font-medium text-white text-sm">{cert.name}</span>
+                                                    <span className="font-medium text-[var(--color-neon-text)] text-sm">{cert.name}</span>
                                                 </div>
                                             </td>
                                             <td className="hidden sm:table-cell text-[var(--color-neon-muted)] text-sm">{cert.course}</td>
@@ -142,21 +139,21 @@ export default async function DashboardPage() {
                                             <td>
                                                 <div className="flex items-center justify-end gap-2">
                                                     {/* COPY LINK BUTTON - GSSoC 2026 Feature */}
-                                                    <CopyLinkButton certificateId={cert.certificateId} />
+                                                    {cert.status === "issued" && !cert.revoked && cert.pdfUrl && <CopyLinkButton certificateId={cert.certificateId} />}
 
                                                     {/* View PDF Button */}
-                                                    <a href={cert.pdfUrl} target="_blank" rel="noreferrer"
-                                                        className="p-1.5 text-[var(--color-neon-muted)] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                                                    {cert.status === "issued" && !cert.revoked && cert.pdfUrl && <a href={`/api/private-pdf/${encodeURIComponent(cert.certificateId)}`} target="_blank" rel="noreferrer"
+                                                        className="p-1.5 text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] hover:bg-slate-100 rounded-lg transition-colors"
                                                         title="View PDF">
                                                         <ExternalLink className="w-3.5 h-3.5" />
-                                                    </a>
+                                                    </a>}
                                                     
                                                     {/* Verify Button */}
-                                                    <Link href={`/verify/${cert.certificateId}`} target="_blank"
+                                                    {cert.status === "issued" && !cert.revoked && cert.pdfUrl ? <Link href={`/verify/${cert.certificateId}`} target="_blank"
                                                         className="p-1.5 text-[var(--color-neon-muted)] hover:text-[var(--color-neon-primary)] hover:bg-[var(--color-neon-primary)]/08 rounded-lg transition-colors"
                                                         title="Verify">
                                                         <ShieldCheck className="w-3.5 h-3.5" />
-                                                    </Link>
+                                                    </Link> : <span className="text-xs">{cert.revoked ? "Revoked" : cert.status}</span>}
                                                 </div>
                                             </td>
                                         </tr>
@@ -167,14 +164,16 @@ export default async function DashboardPage() {
 
                         {/* Full grid below */}
                         <div className="pt-2">
-                            <h2 className="text-sm font-semibold text-white mb-4">All Certificates</h2>
+                            <h2 className="text-sm font-semibold text-[var(--color-neon-text)] mb-4">Latest 30 Saved Records</h2>
                             <CertificatesGrid initialCerts={certificates.map(c => ({
                                 certificateId: c.certificateId,
                                 name: c.name,
                                 course: c.course,
                                 issueDate: c.issueDate,
-                                pdfUrl: c.pdfUrl,
-                                revoked: c.revoked
+                                pdfUrl: `/api/private-pdf/${encodeURIComponent(c.certificateId)}`,
+                                revoked: c.revoked,
+                                status: c.status,
+                                hasPdf: Boolean(c.pdfUrl)
                             }))} />
                         </div>
                     </>

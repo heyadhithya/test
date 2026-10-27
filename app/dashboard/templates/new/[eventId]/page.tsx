@@ -145,12 +145,12 @@ export default function TemplateBuilderPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div>
-            <h1 className="text-white font-semibold text-base">Template Builder</h1>
+            <h1 className="text-[var(--color-neon-text)] font-semibold text-base">Template Builder</h1>
             <p className="text-[var(--color-neon-muted)] text-xs">Event: {eventId}</p>
           </div>
           <Link
             href="/dashboard/templates"
-            className="text-[var(--color-neon-muted)] hover:text-white text-sm transition-colors"
+            className="text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] text-sm transition-colors"
           >
             Back to Templates
           </Link>
@@ -182,7 +182,7 @@ export default function TemplateBuilderPage() {
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
             placeholder="e.g. Graduation 2024"
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm placeholder:text-[var(--color-neon-muted)] focus:outline-none focus:border-[var(--color-neon-primary)]/50 focus:ring-1 focus:ring-[var(--color-neon-primary)]/20 transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[var(--color-neon-text)] text-sm placeholder:text-[var(--color-neon-muted)] focus:outline-none focus:border-[var(--color-neon-primary)]/50 focus:ring-1 focus:ring-[var(--color-neon-primary)]/20 transition-all"
           />
         </div>
 
@@ -196,7 +196,7 @@ export default function TemplateBuilderPage() {
                 className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all ${
                   selectedFieldId === field.id
                     ? 'bg-[var(--color-neon-primary)]/10 border border-[var(--color-neon-primary)]/30 text-[var(--color-neon-primary)]'
-                    : 'bg-white/5 border border-white/5 text-white/80 hover:bg-white/10'
+                    : 'bg-white/5 border border-white/5 text-[var(--color-neon-text)]/80 hover:bg-white/10'
                 }`}
               >
                 <span className="font-medium">{field.label}</span>
@@ -227,7 +227,7 @@ export default function TemplateBuilderPage() {
         <div className="p-5 space-y-3">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-              <p className="text-red-400 text-xs">{error}</p>
+              <p className="text-red-700 text-xs">{error}</p>
             </div>
           )}
 
@@ -248,7 +248,7 @@ export default function TemplateBuilderPage() {
           {bgImageUrl && (
             <button
               onClick={() => setBgImageUrl('')}
-              className="w-full border border-white/10 hover:border-white/20 text-[var(--color-neon-muted)] hover:text-white rounded-lg px-4 py-2 text-sm transition-colors"
+              className="w-full border border-white/10 hover:border-white/20 text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] rounded-lg px-4 py-2 text-sm transition-colors"
             >
               Change Background
             </button>

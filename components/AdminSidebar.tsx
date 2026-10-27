@@ -34,13 +34,13 @@ export default function AdminSidebar({ user }: Props) {
     };
 
     const sidebarContent = (
-        <div className="flex flex-col h-full bg-[#080808]">
+        <div className="flex flex-col h-full bg-white">
             {/* Logo */}
             <div className="px-6 py-5 border-b border-[var(--color-neon-border)] flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 group">
                     <Image unoptimized width={40} height={40} src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
                     <div className="flex flex-col">
-                        <span className="text-lg font-black tracking-widest uppercase text-white leading-none">SAIRAM CERTIFY</span>
+                        <span className="text-lg font-black tracking-widest uppercase text-[var(--color-neon-text)] leading-none">SAIRAM CERTIFY</span>
                         <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest leading-none mt-1">ADMIN</span>
                     </div>
                 </Link>
@@ -53,12 +53,12 @@ export default function AdminSidebar({ user }: Props) {
                         <Image unoptimized width={40} height={40} src={user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-red-500/50 shrink-0 object-cover" />
                     ) : (
                         <div className="w-9 h-9 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
-                            <User className="w-4 h-4 text-red-400" />
+                            <User className="w-4 h-4 text-red-700" />
                         </div>
                     )}
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{user.name ?? "Admin"}</p>
-                        <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Super Administrator</p>
+                        <p className="text-sm font-semibold text-[var(--color-neon-text)] truncate">{user.name ?? "Admin"}</p>
+                        <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider">Super Administrator</p>
                     </div>
                 </div>
             </div>
@@ -74,11 +74,11 @@ export default function AdminSidebar({ user }: Props) {
                             href={href}
                             onClick={() => setMobileOpen(false)}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${active
-                                ? "bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]"
-                                : "text-[var(--color-neon-muted)] hover:text-white hover:bg-white/5"
+                                ? "bg-red-500/10 text-red-700 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]"
+                                : "text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] hover:bg-slate-100"
                                 }`}
                         >
-                            <Icon className={`w-4 h-4 shrink-0 ${active ? "text-red-400" : "group-hover:text-white"}`} />
+                            <Icon className={`w-4 h-4 shrink-0 ${active ? "text-red-700" : "group-hover:text-[var(--color-neon-text)]"}`} />
                             <span className="flex-1">{label}</span>
                             {active && <ChevronRight className="w-3.5 h-3.5" />}
                         </Link>
@@ -90,7 +90,7 @@ export default function AdminSidebar({ user }: Props) {
             <div className="px-4 py-4 border-t border-[var(--color-neon-border)] space-y-2">
                 <Link 
                     href="/dashboard" 
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[var(--color-neon-muted)] hover:text-white hover:bg-white/5 transition-all group"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] hover:bg-slate-100 transition-all group"
                 >
                     <Home className="w-4 h-4 shrink-0 group-hover:text-[var(--color-neon-primary)]" />
                     <span>User Dashboard</span>
@@ -98,7 +98,7 @@ export default function AdminSidebar({ user }: Props) {
                 </Link>
                 <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-400/10 transition-all"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-700 hover:bg-red-400/10 transition-all"
                 >
                     <LogOut className="w-4 h-4 shrink-0" />
                     Sign Out
@@ -110,14 +110,14 @@ export default function AdminSidebar({ user }: Props) {
     return (
         <>
             {/* Desktop sidebar */}
-            <aside className="hidden md:flex w-64 shrink-0 flex-col h-screen sticky top-0 bg-[#080808] border-r border-[var(--color-neon-border)] z-30">
+            <aside className="hidden md:flex w-64 shrink-0 flex-col h-screen sticky top-0 bg-white border-r border-[var(--color-neon-border)] z-30">
                 {sidebarContent}
             </aside>
 
             {/* Mobile: hamburger button */}
             <button
                 onClick={() => setMobileOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-[#0a0a0a] border border-[var(--color-neon-border)] flex items-center justify-center shadow-lg"
+                className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-white border border-[var(--color-neon-border)] flex items-center justify-center shadow-lg"
             >
                 <ShieldAlert className="w-5 h-5 text-red-500 animate-pulse-glow" />
             </button>
@@ -125,9 +125,9 @@ export default function AdminSidebar({ user }: Props) {
             {/* Mobile: overlay drawer */}
             {mobileOpen && (
                 <div className="md:hidden fixed inset-0 z-50 flex">
-                    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-                    <aside className="relative w-72 bg-[#080808] border-r border-[var(--color-neon-border)] flex flex-col h-full">
-                        <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--color-neon-muted)] hover:text-white z-50">
+                    <div className="absolute inset-0 bg-slate-900/25" onClick={() => setMobileOpen(false)} />
+                    <aside className="relative w-72 bg-white border-r border-[var(--color-neon-border)] flex flex-col h-full">
+                        <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] z-50">
                             <X className="w-5 h-5" />
                         </button>
                         {sidebarContent}

@@ -5,7 +5,7 @@ export default function SettingsPage() {
     return (
         <div className="space-y-8 max-w-xl">
             <div>
-                <h1 className="text-2xl font-bold text-white">Settings</h1>
+                <h1 className="text-2xl font-bold text-[var(--color-neon-text)]">Settings</h1>
                 <p className="text-sm text-[var(--color-neon-muted)] mt-1">Manage your Sairam Certify account preferences.</p>
             </div>
 
@@ -41,7 +41,7 @@ export default function SettingsPage() {
                         {item.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-white mb-0.5">{item.title}</p>
+                        <p className="font-semibold text-[var(--color-neon-text)] mb-0.5">{item.title}</p>
                         <p className="text-sm text-[var(--color-neon-muted)] leading-relaxed">{item.desc}</p>
                         {item.action && (
                             <Link href={item.action.href} className="text-xs text-[var(--color-neon-primary)] hover:underline mt-2 inline-block">

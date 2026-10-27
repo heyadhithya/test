@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import CertificateCard from "@/components/CertificateCard"
 
 interface Cert {
@@ -10,14 +9,12 @@ interface Cert {
     issueDate: string
     pdfUrl: string
     revoked: boolean
+    status?: string
+    hasPdf?: boolean
 }
 
 export default function CertificatesGrid({ initialCerts }: { initialCerts: Cert[] }) {
-    const [certs, setCerts] = useState<Cert[]>(initialCerts)
-
-    function handleDeleted(id: string) {
-        setCerts(prev => prev.filter(c => c.certificateId !== id))
-    }
+    const certs = initialCerts
 
     if (certs.length === 0) {
         return (
@@ -30,7 +27,7 @@ export default function CertificatesGrid({ initialCerts }: { initialCerts: Cert[
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {certs.map(cert => (
-                <CertificateCard key={cert.certificateId} cert={cert} onDeleted={handleDeleted} />
+                <CertificateCard key={cert.certificateId} cert={cert} />
             ))}
         </div>
     )

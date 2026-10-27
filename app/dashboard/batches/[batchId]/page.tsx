@@ -14,7 +14,7 @@ export default async function BatchDashboardPage(props: { params: Promise<{ batc
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between gap-4">
-                <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-[var(--color-neon-muted)] hover:text-white transition-colors">
+                <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Back to dashboard
                 </Link>
             </div>

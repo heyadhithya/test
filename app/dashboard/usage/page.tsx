@@ -34,7 +34,7 @@ export default async function UsagePage() {
         console.error("Error fetching usage data:", error);
         // Redirect to an error page or show a user-friendly message
         return (
-            <div className="space-y-8 max-w-5xl text-red-400">
+            <div className="space-y-8 max-w-5xl text-red-700">
                 <h1 className="text-2xl font-bold">Error loading usage data</h1>
                 <p>There was an issue fetching your API usage logs. Please try again later.</p>
             </div>
@@ -77,7 +77,7 @@ export default async function UsagePage() {
             <div className="space-y-8 max-w-5xl">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-[var(--color-neon-text)] flex items-center gap-2">
                         <Activity className="w-6 h-6 text-[var(--color-neon-primary)]" /> API Usage
                     </h1>
                     <p className="text-sm text-[var(--color-neon-muted)] mt-1">
@@ -95,7 +95,7 @@ export default async function UsagePage() {
                     ].map(s => (
                         <div key={s.label} className="glass-card px-5 py-4">
                             <div className={`flex items-center gap-2 mb-2 ${s.color}`}>{s.icon}<span className="text-xs font-semibold uppercase tracking-wider">{s.label}</span></div>
-                            <p className="text-3xl font-black text-white">{s.value}</p>
+                            <p className="text-3xl font-black text-[var(--color-neon-text)]">{s.value}</p>
                         </div>
                     ))}
                 </div>
@@ -108,7 +108,7 @@ export default async function UsagePage() {
                         </div>
                         <div>
                             <p className="text-xs text-[var(--color-neon-muted)] uppercase tracking-wider mb-0.5">Verify calls</p>
-                            <p className="text-2xl font-black text-white">{verifies}</p>
+                            <p className="text-2xl font-black text-[var(--color-neon-text)]">{verifies}</p>
                             <p className="text-xs text-[var(--color-neon-muted)]">GET /api/verify/&#123;id&#125;</p>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export default async function UsagePage() {
                         </div>
                         <div>
                             <p className="text-xs text-[var(--color-neon-muted)] uppercase tracking-wider mb-0.5">Create calls</p>
-                            <p className="text-2xl font-black text-white">{creates}</p>
+                            <p className="text-2xl font-black text-[var(--color-neon-text)]">{creates}</p>
                             <p className="text-xs text-[var(--color-neon-muted)]">POST /api/certificates/create</p>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ export default async function UsagePage() {
 
                 {/* 7-day bar chart */}
                 <div className="glass-card p-6 space-y-4">
-                    <h2 className="text-sm font-semibold text-white">Calls — Last 7 Days</h2>
+                    <h2 className="text-sm font-semibold text-[var(--color-neon-text)]">Calls — Last 7 Days</h2>
                     <div className="flex items-end gap-2 h-32">
                         {days.map(d => (
                             <div key={d.label} className="flex-1 flex flex-col items-center gap-2">
@@ -145,7 +145,7 @@ export default async function UsagePage() {
                 {/* Recent call log */}
                 <div className="glass-card overflow-hidden">
                     <div className="px-6 py-4 border-b border-[var(--color-neon-border)] flex items-center justify-between">
-                        <h2 className="text-sm font-semibold text-white">Recent Calls</h2>
+                        <h2 className="text-sm font-semibold text-[var(--color-neon-text)]">Recent Calls</h2>
                         <span className="text-xs text-[var(--color-neon-muted)]">Last {recent.length} of {totalCalls}</span>
                     </div>
 
@@ -157,7 +157,7 @@ export default async function UsagePage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="bg-[#0d0d0d] border-b border-[var(--color-neon-border)] text-xs text-[var(--color-neon-muted)] uppercase tracking-wider">
+                                    <tr className="bg-slate-50 border-b border-[var(--color-neon-border)] text-xs text-[var(--color-neon-muted)] uppercase tracking-wider">
                                         <th className="text-left px-5 py-3">Status</th>
                                         <th className="text-left px-5 py-3">Endpoint</th>
                                         <th className="text-left px-5 py-3">Certificate ID</th>
@@ -168,7 +168,7 @@ export default async function UsagePage() {
                                     {recent.map(log => (
                                         <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
                                             <td className="px-5 py-3">
-                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${log.statusCode < 400 ? "text-emerald-400" : "text-red-400"}`}>
+                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${log.statusCode < 400 ? "text-emerald-400" : "text-red-700"}`}>
                                                     {log.statusCode < 400
                                                         ? <CheckCircle2 className="w-3.5 h-3.5" />
                                                         : <XCircle className="w-3.5 h-3.5" />}
@@ -205,7 +205,7 @@ export default async function UsagePage() {
                     <div className="glass-card p-5 flex items-center justify-between">
                         <div>
                             <p className="text-xs text-[var(--color-neon-muted)] uppercase tracking-wider mb-1">Success Rate</p>
-                            <p className="text-2xl font-black text-white">{Math.round((successes / totalCalls) * 100)}%</p>
+                            <p className="text-2xl font-black text-[var(--color-neon-text)]">{Math.round((successes / totalCalls) * 100)}%</p>
                         </div>
                         <div className="flex-1 mx-8">
                             <div className="h-2 rounded-full bg-white/10 overflow-hidden">
