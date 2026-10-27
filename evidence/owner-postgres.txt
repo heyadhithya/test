@@ -1,0 +1,7 @@
+PASS account-write failure rolls back invitation consumption
+PASS racing provision: exactly one account and one consumed invitation
+PASS bcrypt hash and no false email verification
+PASS existing account not reset
+PASS real password validation yields immutable session identity only
+PASS consumed invite cannot recreate account after local deletion
+PASS disposable PostgreSQL owner setup tests; no actual user password, hosted writes, mail or issuer grant

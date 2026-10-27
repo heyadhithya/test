@@ -420,7 +420,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
         <div className="w-full max-w-6xl mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-20">
           <Link
             href="/"
-            className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-white shrink-0 whitespace-nowrap w-fit"
+            className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-[var(--color-neon-text)] shrink-0 whitespace-nowrap w-fit"
           >
             <Image
               src="/sairam-mark.svg"
@@ -447,7 +447,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
             {status === "authenticated" ? (
               <Link
                 href="/api/auth/signout"
-                className="btn-secondary basis-full min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap text-red-400 hover:text-red-300 hover:border-red-400 sm:basis-auto sm:px-4 sm:flex-none"
+                className="btn-secondary basis-full min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap text-red-700 hover:text-red-800 hover:border-red-400 sm:basis-auto sm:px-4 sm:flex-none"
               >
                 <LogOut className="w-4 h-4" /> Sign Out
               </Link>
@@ -551,7 +551,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                     preview. Drag markers to adjust.
                   </p>
 
-                  <div className="relative border-2 border-[var(--color-neon-border)] rounded-xl overflow-hidden bg-black/50 flex flex-1 items-center justify-center p-4">
+                  <div className="relative border-2 border-[var(--color-neon-border)] rounded-xl overflow-hidden bg-slate-50 flex flex-1 items-center justify-center p-4">
                     <div
                       className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
                       onClick={handlePdfClick}
@@ -616,7 +616,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-neon-border)] rounded-xl bg-black/20 text-[var(--color-neon-muted)] p-8 text-center min-h-[500px]">
+                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-neon-border)] rounded-xl bg-slate-50 text-[var(--color-neon-muted)] p-8 text-center min-h-[500px]">
                   <Crosshair className="w-12 h-12 mb-4 opacity-30" />
                   <p>Upload a Base Template (PDF) to activate the Visualizer</p>
                 </div>
@@ -679,7 +679,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                           className="font-semibold transition-colors"
                           style={{
                             color: config.name.enabled
-                              ? MARKER_COLORS.name
+                              ? "var(--color-neon-text)"
                               : "var(--color-neon-muted)",
                           }}
                         >
@@ -693,7 +693,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                               activeTarget === "name" ? null : "name",
                             )
                           }
-                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "name" ? "bg-[var(--color-neon-primary)] text-black font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "name" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
                         >
                           <Crosshair className="w-3 h-3 mr-1.5" />{" "}
                           {activeTarget === "name"
@@ -703,7 +703,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       )}
                     </div>
                     {config.name.enabled && (
-                      <div className="grid grid-cols-3 gap-4 bg-black/20 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
                         <div>
                           <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
                             Font Size
@@ -807,7 +807,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                           className="font-semibold transition-colors"
                           style={{
                             color: config.course.enabled
-                              ? MARKER_COLORS.course
+                              ? "var(--color-neon-text)"
                               : "var(--color-neon-muted)",
                           }}
                         >
@@ -821,7 +821,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                               activeTarget === "course" ? null : "course",
                             )
                           }
-                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "course" ? "bg-[var(--color-neon-primary)] text-black font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "course" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
                         >
                           <Crosshair className="w-3 h-3 mr-1.5" />{" "}
                           {activeTarget === "course"
@@ -831,7 +831,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       )}
                     </div>
                     {config.course.enabled && (
-                      <div className="grid grid-cols-3 gap-4 bg-black/20 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
                         <div>
                           <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
                             Font Size
@@ -935,7 +935,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                           className="font-semibold transition-colors"
                           style={{
                             color: config.issueDate.enabled
-                              ? MARKER_COLORS.issueDate
+                              ? "var(--color-neon-text)"
                               : "var(--color-neon-muted)",
                           }}
                         >
@@ -949,7 +949,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                               activeTarget === "issueDate" ? null : "issueDate",
                             )
                           }
-                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "issueDate" ? "bg-[var(--color-neon-primary)] text-black font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "issueDate" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
                         >
                           <Crosshair className="w-3 h-3 mr-1.5" />{" "}
                           {activeTarget === "issueDate"
@@ -959,7 +959,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       )}
                     </div>
                     {config.issueDate.enabled && (
-                      <div className="grid grid-cols-3 gap-4 bg-black/20 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
                         <div>
                           <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
                             Font Size
@@ -1064,7 +1064,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                           className="font-semibold transition-colors"
                           style={{
                             color: config.qrCode.enabled
-                              ? MARKER_COLORS.qrCode
+                              ? "var(--color-neon-text)"
                               : "var(--color-neon-muted)",
                           }}
                         >
@@ -1078,7 +1078,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                               activeTarget === "qrCode" ? null : "qrCode",
                             )
                           }
-                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "qrCode" ? "bg-[var(--color-neon-primary)] text-black font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "qrCode" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
                         >
                           <Crosshair className="w-3 h-3 mr-1.5" />{" "}
                           {activeTarget === "qrCode"
@@ -1088,7 +1088,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       )}
                     </div>
                     {config.qrCode.enabled && (
-                      <div className="grid grid-cols-1 gap-4 bg-black/20 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                      <div className="grid grid-cols-1 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
                         <div>
                           <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
                             Scale Multiplier
@@ -1115,7 +1115,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   <div className="pt-4 border-t border-[var(--color-neon-border)]/30 mt-2 space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-white">
+                        <h4 className="font-semibold text-[var(--color-neon-text)]">
                           Email Delivery
                         </h4>
                         <p className="text-xs text-[var(--color-neon-muted)] mt-1">
@@ -1157,7 +1157,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                     </div>
 
                     {sendEmails && sheetHeaders.length > 0 && (
-                      <div className="space-y-4 bg-black/20 p-4 rounded-xl border border-[var(--color-neon-border)]/50">
+                      <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50">
                         <div>
                           <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
                             Recipient Email Column <span className="text-red-500">*</span>
@@ -1165,7 +1165,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                           <select
                             value={selectedEmailHeader}
                             onChange={(e) => setSelectedEmailHeader(e.target.value)}
-                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-white rounded-lg p-2.5 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-[var(--color-neon-text)] rounded-lg p-2.5 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
                           >
                             <option value="" disabled>-- Select Column containing Email --</option>
                             {sheetHeaders.map((col) => (
@@ -1187,7 +1187,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                               setEmailTemplate(nextTemplate);
                               setCustomEmailBody(EMAIL_TEMPLATES[nextTemplate].body);
                             }}
-                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2.5 text-sm text-white focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2.5 text-sm text-[var(--color-neon-text)] focus:border-[var(--color-neon-primary)] outline-none transition-colors"
                           >
                             {(Object.entries(EMAIL_TEMPLATES) as [
                               EmailTemplateId,
@@ -1209,7 +1209,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             onChange={(e) => setCustomEmailBody(e.target.value)}
                             rows={6}
                             placeholder="Write a message to include in the email..."
-                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-3 text-sm text-white focus:border-[var(--color-neon-primary)] outline-none transition-colors resize-y"
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-3 text-sm text-[var(--color-neon-text)] focus:border-[var(--color-neon-primary)] outline-none transition-colors resize-y"
                           />
                           <p className="text-[11px] text-[var(--color-neon-muted)] mt-2">
                             Use <span className="text-[var(--color-neon-primary)]">{`{name}`}</span> to personalize each email.
@@ -1246,13 +1246,13 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${saveToDb ? "translate-x-4" : "translate-x-1"}`}
                           />
                         </div>
-                        <span className="font-semibold text-white">
+                        <span className="font-semibold text-[var(--color-neon-text)]">
                           Save to Gallery (Database)
                         </span>
                       </div>
                     </div>
                     {!saveToDb && (
-                      <p className="text-xs text-yellow-400 mt-2">
+                      <p className="text-xs text-amber-800 mt-2">
                         {status === "unauthenticated"
                           ? "Guest PDFs are unverified. Registry setup is pending; saving and QR verification are unavailable."
                           : "Database saving disabled. Documents won't appear in gallery. QR Verification is turned off."}
@@ -1292,7 +1292,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin text-black" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin text-white" />
                       Generating...
                     </>
                   ) : (
@@ -1303,22 +1303,22 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
               {/* Status Feedback */}
               {error && (
-                <div className="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-start text-red-200">
+                <div className="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-start text-red-800">
                   <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5 text-red-400" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}
 
               {successCount !== null && (
-                <div className="mt-4 p-4 rounded-xl bg-[#00e599]/10 border border-[#00e599]/30 flex items-start text-[#00e599]">
+                <div className="mt-4 p-4 rounded-xl bg-[#00e599]/10 border border-[#00e599]/30 flex items-start text-emerald-800">
                   <CheckCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-sm">Success!</p>
-                    <p className="text-sm text-[#00e599]/80">{statusText}</p>
+                    <p className="text-sm text-emerald-800/80">{statusText}</p>
                     {batchId && saveToDb ? (
                       <Link
                         href={`/dashboard/batches/${batchId}`}
-                        className="inline-flex items-center gap-2 mt-3 text-sm font-medium text-[#00e599] hover:underline"
+                        className="inline-flex items-center gap-2 mt-3 text-sm font-medium text-emerald-800 hover:underline"
                       >
                         Open batch dashboard
                       </Link>
@@ -1369,7 +1369,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       href={`/verify/${cert.certificateId}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs bg-[var(--color-neon-primary)] text-black font-semibold hover:bg-[#00ffaa] flex-1 px-3 py-2 rounded-lg text-center transition-colors"
+                      className="text-xs bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] flex-1 px-3 py-2 rounded-lg text-center transition-colors"
                     >
                       Verify Page
                     </a> : <span className="text-xs p-2">Guest PDF · Unverified</span>}
@@ -1382,7 +1382,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
               <button
                 onClick={handleDownloadZip}
                 disabled={isZipping}
-                className="bg-[var(--color-neon-primary)] text-black font-semibold hover:bg-[#00ffaa] py-3 px-8 rounded-xl flex items-center justify-center gap-3 group transition-all duration-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,153,0.3)] hover:shadow-[0_0_30px_rgba(0,229,153,0.5)]"
+                className="bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] py-3 px-8 rounded-xl flex items-center justify-center gap-3 group transition-all duration-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,153,0.3)] hover:shadow-[0_0_30px_rgba(0,229,153,0.5)]"
               >
                 {isZipping ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -1396,8 +1396,8 @@ const [previewLoading, setPreviewLoading] = useState(false);
         )}
         {/* Fullscreen PDF Map Modal */}
         {isFullscreen && pdfPreviewUrl && (
-          <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex flex-col">
-            <div className="p-4 flex items-center justify-between border-b border-[var(--color-neon-border)]/50 bg-black/50">
+          <div className="fixed inset-0 z-[100] bg-white backdrop-blur-sm flex flex-col">
+            <div className="p-4 flex items-center justify-between border-b border-[var(--color-neon-border)]/50 bg-slate-50">
               <div>
                 <h2 className="text-xl font-bold text-[var(--color-neon-primary)]">
                   Fullscreen Template Map
@@ -1528,7 +1528,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
       
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-white">Certificate Preview</h2>
+          <h2 className="text-lg font-bold text-[var(--color-neon-text)]">Certificate Preview</h2>
           <p className="text-xs text-[var(--color-neon-muted)] mt-1">
             Using data from row 1 of your dataset
           </p>
@@ -1542,7 +1542,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
       </div>
 
       {/* Reuse existing PdfPreview component */}
-      <div className="rounded-xl overflow-hidden border border-[var(--color-neon-border)] bg-black/30 max-h-[60vh] overflow-y-auto">
+      <div className="rounded-xl overflow-hidden border border-[var(--color-neon-border)] bg-slate-50 max-h-[60vh] overflow-y-auto">
         <PdfPreview fileUrl={previewPdfUrl} />
       </div>
 
@@ -1567,7 +1567,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="p-8 text-center text-sm">Built by Aditya.com · <a href="https://wa.me/917305480362">WhatsApp</a></footer>
+      <footer className="p-8 text-center text-sm">Built from Adhithya.com · <a href="https://wa.me/917305480362">WhatsApp</a></footer>
     </div>
   );
 }

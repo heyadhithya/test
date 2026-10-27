@@ -1,3 +1,29 @@
+# Current personal password pilot release
+
+This section supersedes historical email-link activation instructions below. Resend is OFF: the active NextAuth provider is Credentials only. No sending key or mail is required. Existing database mapping commit04cf482 is retained. White primary surfaces and the exact unlinked footer “Built from Adhithya.com” preserve existing layout/handlers and MIT notices.
+
+## Secure owner setup contract
+
+The configured Production `AUTH_EMAIL_ALLOWLIST` must contain exactly one manually authorized pilot owner. Source never hardcodes that private address. A read-only hosted check found zero matching accounts; no live account has been created or password reset.
+
+Required Production configuration: `AUTH_MODE=password`, `AUTH_GUARDS_READY=true`, canonical `NEXTAUTH_URL`, existing `NEXTAUTH_SECRET` (do not rotate), and verified integration `POSTGRES_PRISMA_URL`. Set `AUTH_ENABLED=true` to allow password sign-in. Setup is separately gated by `OWNER_SETUP_ENABLED=true`, `OWNER_SETUP_EXPIRES_AT` (ISO UTC,15 minutes from creation; implementation rejects more than24 hours), and `OWNER_SETUP_TOKEN_SHA256`.
+
+Generate48 random bytes with a cryptographic RNG, encode base64url without padding as CODE. Compute lowercase hex SHA-256 of UTF-8 NORMALIZED_OWNER_EMAIL + one NUL byte + CODE. Store only that hash in `OWNER_SETUP_TOKEN_SHA256`, Production sensitive. Do not save CODE/password in source, notes, evidence or logs. Parent delivers the one-use invitation privately to the authenticated owner: `https://sairam-ecosystem-certifications.vercel.app/owner-setup#setup=CODE`. The form reads the fragment into a masked input and immediately removes it from browser history; it serves `Referrer-Policy: no-referrer`. A separate private code entered on the same form also works. No invitation has been generated here.
+
+User enters a fresh unique password directly in the HTTPS form (minimum12 characters, maximum72 UTF-8 bytes). Do not use any password exposed in chat. POST requires exact canonical Origin, JSON and a bounded2KB body. Invalid/expired code fails closed. bcrypt cost12 hashes the password. A transaction creates the consumed-code hash marker and new User together; conflict, expiry, contention or account-write failure rolls back. Existing accounts are never overwritten. `emailVerified` stays null: manual pilot ownership authorization is not mailbox verification. No unrestricted registration, password recovery, OAuth grant or automatic issuer grant exists.
+
+Setup and login share a conservative budget: three admitted attempts/hour per owner with a60-second cooldown (including success), plus global quotas. Wait one minute after setup before signing in. A party who knows the owner email can exhaust that login budget; distributed admission prevents guessing bursts but not targeted lockout. This pilot limitation is explicit, not a general-user authentication maturity claim. JWT and cookie/session expiry are both8 hours.
+
+After verified password sign-in, identify the actual immutable User ID and explicitly set `ISSUER_USER_IDS` for this personal showcase. For QR issuance also set `SUPABASE_PRIVATE_BUCKET=certificates-private`; retain the verified integration’s `SUPABASE_URL` and server-only service key and existing `ISSUANCE_ID_SECRET`. Only then enable `VERIFIED_ISSUANCE_ENABLED` and run synthetic persisted QR/owner-download tests. Remove setup enablement after successful provisioning; consumed markers already prevent invitation replay.
+
+## Release evidence and boundary
+
+35 tests pass, including actual NextAuth CSRF rejection/positive control, JWT expiry, owner binding, expiry during hashing, password checks and setup-origin/body limits. Disposable PostgreSQL17.11 proves atomic provisioning/rollback/racing/replay and no password overwrite. Browser checks cover password/setup screens on390/1440px, fragment clearing/no-referrer, disabled-state failure, and the unchanged template/Excel/PDF/ZIP flow. No hosted account, password, invitation, issuer grant or mail was created. Primary text contrast exceeds4.5:1; historical nonprimary inactive screens received readable heading/input colors.
+
+Do not push until the intended setup-ready release is authorized: the repo is linked to Vercel and pushes can deploy. Remote main remained b523391; our remote rebrand branch remained7dee1c0 during inspection. Concurrent fix/framilton-clean-landing-p0 branch work and its failed previews are unrelated and preserved.
+
+---
+
 # Release status and exact gates
 
 Dependency audit, full lint, typecheck, production build and fourteen regression tests pass. This is a developer-ready demonstration, not a completed verified-issuance production release. No retired resources were modified. No paid activation, OAuth grant, email send or fork retry occurred.

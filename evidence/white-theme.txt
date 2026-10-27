@@ -1,0 +1,14 @@
+PASS 390px /: white background, no horizontal overflow
+PASS 390px /app: white background, no horizontal overflow
+PASS 390px /login: white background, no horizontal overflow
+PASS 390px /docs: white background, no horizontal overflow
+PASS 390px /verify/CERT-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: white background, no horizontal overflow
+PASS 1440px /: white background, no horizontal overflow
+PASS 1440px /app: white background, no horizontal overflow
+PASS 1440px /login: white background, no horizontal overflow
+PASS 1440px /docs: white background, no horizontal overflow
+PASS 1440px /verify/CERT-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: white background, no horizontal overflow
+PASS 17354a/ffffff text contrast 12.77:1
+PASS 506270/ffffff text contrast 6.32:1
+PASS 315b78/ffffff text contrast 7.25:1
+PASS 17618c/ffffff text contrast 6.72:1

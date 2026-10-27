@@ -4,25 +4,25 @@
 
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 74ms
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 70ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
 
 ▲ Next.js 16.4.3 (Turbopack)
-✓ Running next.config.ts took 39ms
+✓ Running next.config.ts took 30ms
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.2s
+✓ Compiled successfully in 1119ms
   Running TypeScript ...
-  Finished TypeScript in 3.9s ...
+  Finished TypeScript in 3.6s ...
   Collecting page data using 4 workers ...
-  Generating static pages using 4 workers (0/30) ...
-  Generating static pages using 4 workers (7/30) 
-  Generating static pages using 4 workers (14/30) 
-  Generating static pages using 4 workers (22/30) 
-✓ Generating static pages using 4 workers (30/30) in 403ms
+  Generating static pages using 4 workers (0/32) ...
+  Generating static pages using 4 workers (8/32)
+  Generating static pages using 4 workers (16/32)
+  Generating static pages using 4 workers (24/32)
+✓ Generating static pages using 4 workers (32/32) in 365ms
   Finalizing page optimization ...
 
 Route (app)
@@ -47,6 +47,7 @@ Route (app)
 ├ ƒ /api/emails/send
 ├ ƒ /api/emails/verify-session
 ├ ƒ /api/generate
+├ ƒ /api/owner-setup
 ├ ƒ /api/private-pdf/[id]
 ├ ƒ /api/templates
 ├ ƒ /api/templates/[eventId]
@@ -68,6 +69,7 @@ Route (app)
 ├ ○ /docs
 ├ ○ /forgot-password
 ├ ○ /login
+├ ○ /owner-setup
 ├ ○ /privacy
 ├ ○ /register
 ├ ƒ /reset-password/[token]

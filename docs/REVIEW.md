@@ -24,3 +24,8 @@ Independent reviewer inspected the disposable PostgreSQL17.11 evidence and confi
 ## Integration datasource mapping review
 
 Independent review confirms consistent DATABASE_URL/POSTGRES_PRISMA_URL precedence, server-only imports, no public-variable fallback, no direct migration URL use, no logging or environment mutation.30 tests plus lint/typecheck/build pass. Reviewer flagged automatic Git deployment risk following owner linkage; local commit retained until branch publication can avoid deployment and Preview credential exposure.
+
+
+## Personal password setup and white-theme review
+
+Independent reviewer confirmed no remaining account-creation blocker after explicit8-hour JWT expiry, shared secure setup readiness and canonical-origin fixes. Real PostgreSQL evidence covers atomic consumed-code/account creation, rollback, race/replay denial and no overwrite. Credential CSRF test now asserts actual rejection and successful valid-CSRF session creation. Setup/code/hash contract preserves emailVerified=null and separate issuer authorization. White theme has no handler/auth/license changes; inherited white-on-white headings/inputs were corrected. Release remains local pending setup configuration and authorized publication.

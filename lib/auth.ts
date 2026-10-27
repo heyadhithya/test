@@ -1,29 +1,23 @@
 import { trustedRedirect } from './security';
-import { admitEmail } from './auth-admission';
-import { allowedEmail, emailProvider } from './email-auth';
+import { authorizeOwner } from './owner-auth';
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma) as Adapter,
-    providers: [emailProvider],
-    session: { strategy: 'jwt' },
-    // Avoid logging tokens, addresses, provider responses or credentials.
-    logger: { error() { console.error('Authentication failed'); }, warn() {}, debug() {} },
+    providers: [CredentialsProvider({name: 'Password', credentials: {email: {label: 'Email', type: 'email'}, password: {label: 'Password', type: 'password'}}, authorize: authorizeOwner})],
+    session: {strategy: 'jwt', maxAge: 8 * 60 * 60},
+    jwt: {maxAge: 8 * 60 * 60},
+    logger: {error() { console.error('Authentication failed'); }, warn() {}, debug() {}},
     callbacks: {
-        async signIn({ user, email, account }) {
-            if (account?.provider !== 'email') return false;
-            // Requests are indistinguishable; callback authorization still requires the allowlist.
-            if (email?.verificationRequest) return await admitEmail(user.email) ? true : `${process.env.NEXTAUTH_URL}/login?sent=1`;
-            return allowedEmail(user.email);
-        },
-        async session({ session, token }) {
+        async session({session, token}) {
             if (session.user && token.sub) session.user.id = token.sub;
             return session;
         },
-        async redirect({ url }) { return trustedRedirect(url, process.env.NEXTAUTH_URL || ''); },
+        async redirect({url}) { return trustedRedirect(url, process.env.NEXTAUTH_URL || ''); },
     },
-    pages: { signIn: '/login', error: '/login', verifyRequest: '/login?sent=1' },
+    pages: {signIn: '/login', error: '/login'},
 };
