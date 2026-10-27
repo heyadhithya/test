@@ -7,6 +7,13 @@ function config() {
  return {origin:url.origin,key,bucket};
 }
 function path(key:string){return key.split('/').map(encodeURIComponent).join('/');}
+export async function privateStorageReady(): Promise<boolean> {
+ try {
+  const c=config();
+  const response=await fetch(`${c.origin}/storage/v1/bucket/${encodeURIComponent(c.bucket)}`,{headers:{Authorization:`Bearer ${c.key}`,apikey:c.key},cache:'no-store',signal:AbortSignal.timeout(10000)});
+  return response.ok && (await response.json()).public === false;
+ } catch { return false; }
+}
 export async function uploadPrivatePdf(key:string,pdf:Buffer){
  const c=config();const headers={Authorization:`Bearer ${c.key}`,apikey:c.key};
  const metadata=await fetch(`${c.origin}/storage/v1/bucket/${encodeURIComponent(c.bucket)}`,{headers,cache:'no-store',signal:AbortSignal.timeout(10000)});

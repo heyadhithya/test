@@ -1,0 +1,3 @@
+// Disposable local integration only; refuse any nonfixture environment.
+if(process.env.DATABASE_URL !== 'postgresql://postgres:local-disposable-test-only@127.0.0.1:55432/sairam_auth_guards' || process.env.SUPABASE_URL !== 'https://local-test.supabase.co') throw Error('Local fixture only');
+const original=global.fetch;global.fetch=(input,init)=>{const url=typeof input==='string'?input:input instanceof URL?input.href:input.url;if(url.startsWith('https://local-test.supabase.co/storage/v1/'))return original(url.replace('https://local-test.supabase.co','http://127.0.0.1:3011'),init);return original(input,init);};

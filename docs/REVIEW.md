@@ -32,3 +32,6 @@ Independent reviewer confirmed no remaining account-creation blocker after expli
 
 ## White dashboard / owner analytics review
 Independent reviewer confirmed owner-scoped bounded queries, private download wiring, native dialog semantics, truthful record states, and nonempty card SSR. Fixed pending/failed success indicators, ambiguous month label, unavailable delete action, obsolete upstream support contact, and DOMPurify SSR crash. Card and owner-scope tests independently passed (2/2). Full suite37 passed. No outstanding blocker in this bounded diff.
+
+## Ready-owner QR default review
+Independent reviewer confirmed server-only readiness and preserved endpoint issuer authorization. Fixed QR/save inconsistency and result relabeling after control changes. Readiness regression independently passed. Final real local password/session/Postgres/browser integration and ten QR pixel decodes passed. No outstanding bounded-diff blocker.

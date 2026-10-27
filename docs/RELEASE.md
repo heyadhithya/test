@@ -1,3 +1,13 @@
+## Verified QR defaults and ten-participant demo
+
+The generator now obtains server-side readiness from the authenticated immutable issuer ID, issuance configuration, database owner existence, and a live private-bucket metadata check. Only a ready signed-in issuer defaults to saved certificates with QR enabled. Local-only export is explicit; guests and unavailable storage cannot enable saved mode. QR and save controls stay coupled, and existing results retain their successful request mode when controls change. Email delivery is explicitly off.
+
+New original assets: `/demo/sairam-participation-template.pdf`, `/demo/participants-10.xlsx`, `/demo/participants-10.csv`. Ten fictional adults; no email column, no messages, no institutional seal/signature; DEMO ONLY / NOT OFFICIAL template. Original two-row files remain intact.
+
+Validation: 38 tests, clean lint/type/build, audit zero, independent review cleared. `scripts/qr-local-e2e.cjs` exercised real NextAuth password/CSRF/session and disposable PostgreSQL17.11: owner defaults, opt-out/QR re-enable/reload, 10-row Excel and CSV generation, private PDF reads, 10-file ZIP, all ten rendered PDF QR codes independently decoded to exact record URLs, unchanged result status after mode changes, guest401 and unavailable bucket. Storage HTTP responses were a local fixture; this is not a hosted owner-session test. Test script uses fixed loopback database and requires external test-only Playwright, jsqr1.4.0, pngjs7.0.0 and pdftoppm. Never run it against production.
+
+Read-only hosted evidence at this update: 500 owner records issued/nonrevoked with private PDF references; one public registry lookup returned verified200 with no owner/private URL fields. Hosted private PDFs were not retrieved without an owner session, so their embedded QR content was not inspected. No production writes or participant generation occurred through these tests. No monthly capacity claim.
+
 ## White dashboard and owner analytics update
 
 The dashboard now uses white drawer/card surfaces with dark text, a restrained backdrop, native modal keyboard containment, Escape dismissal, and visible input focus. Existing layout is retained; no new client dependency or tracking service was added. Original owner screenshot is private and excluded from the repository. Synthetic visual checks cover 360/390/768/1280 widths, focus, error and loading states without horizontal overflow.

@@ -1,0 +1,1548 @@
+"use client";
+
+import JSZip from "jszip";
+import {
+AlertCircle,
+CheckCircle,
+Crosshair,
+Download,
+FileSpreadsheet,
+FileUp,
+Home,
+LayoutDashboard,
+Loader2,
+LogOut,
+X
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
+import * as xlsx from "xlsx";
+
+import dynamic from "next/dynamic";
+
+const PdfPreview = dynamic(() => import("@/components/PdfPreview"), {
+  ssr: false,
+});
+
+const EMAIL_TEMPLATES = {
+  formal: {
+    label: "Formal",
+    subject: "Your certificate is ready",
+    body:
+      "Dear {name},\n\nYour certificate has been generated successfully. Please find your verification link below.\n\nRegards,\nSairam Certify Team",
+  },
+  friendly: {
+    label: "Friendly",
+    subject: "Good news! Your certificate is ready",
+    body:
+      "Hi {name},\n\nYour certificate is ready and waiting for you. We’ve attached your verification link below.\n\nBest wishes,\nThe Sairam Certify Team",
+  },
+  short: {
+    label: "Short",
+    subject: "Certificate ready",
+    body:
+      "Hi {name},\n\nYour certificate is ready. Use the verification link below to view it.\n\nThanks,\nSairam Certify",
+  },
+} as const;
+
+type EmailTemplateId = keyof typeof EMAIL_TEMPLATES;
+
+function normalizeKey(key: string) {
+  return key.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function detectEmailHeaders(rows: Record<string, unknown>[]) {
+  if (rows.length === 0) return [] as string[];
+
+  const headers = Object.keys(rows[0]);
+  return headers.filter((header) => {
+    const normalized = normalizeKey(header);
+    return (
+      normalized === "email" ||
+      normalized === "recipientemail" ||
+      normalized === "recipientemailaddress" ||
+      normalized === "emailaddress" ||
+      normalized === "mail" ||
+      normalized.includes("email")
+    );
+  });
+}
+
+export default function CertificateGenerator({readiness}: {readiness: "guest" | "unauthorized" | "unavailable" | "ready"}) {
+  const { status } = useSession();
+  const router = useRouter();
+
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [excelFile, setExcelFile] = useState<File | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [statusText, setStatusText] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [successCount, setSuccessCount] = useState<number | null>(null);
+  const [resultSaved, setResultSaved] = useState(false);
+  const [batchId, setBatchId] = useState<string | null>(null);
+  const [saveRequested, setSaveToDb] = useState(readiness === "ready");
+  const canIssue = readiness === "ready" && status === "authenticated";
+  const saveToDb = canIssue && saveRequested;
+  const [isZipping, setIsZipping] = useState(false);
+  const [emailHeaders, setEmailHeaders] = useState<string[]>([]);
+  const [sheetHeaders, setSheetHeaders] = useState<string[]>([]);
+  const [selectedEmailHeader, setSelectedEmailHeader] = useState<string>("");
+  const [sendEmails, setSendEmails] = useState(false);
+  const [emailTemplate, setEmailTemplate] = useState<EmailTemplateId>("formal");
+  const [customEmailBody, setCustomEmailBody] = useState<string>(
+    EMAIL_TEMPLATES.formal.body,
+  );
+  const [inspectingDataset, setInspectingDataset] = useState(false);
+ const [showPreviewModal, setShowPreviewModal] = useState(false);
+const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+const [previewLoading, setPreviewLoading] = useState(false);
+
+  type Certificate = {
+    certificateId: string;
+    name: string;
+    course: string;
+    issueDate: string;
+    pdfUrl: string;
+  };
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+
+  // Coordinate Assistant State
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [activeTarget, setActiveTarget] = useState<
+    "name" | "course" | "issueDate" | "qrCode" | null
+  >(null);
+  const [draggingTarget, setDraggingTarget] = useState<
+    "name" | "course" | "issueDate" | "qrCode" | null
+  >(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Explicit UI Colors for Markers
+  const MARKER_COLORS = {
+    name: "#3b82f6", // Blue
+    course: "#22c55e", // Green
+    issueDate: "#eab308", // Yellow
+    qrCode: "#f97316", // Orange
+  };
+
+  // Advanced Configuration State (Coordinates as % of dimensions)
+  const [config, setConfig] = useState({
+    name: {
+      enabled: true,
+      x: 50,
+      y: 40,
+      size: 32,
+      hex: "#000000",
+      fontStyle: "bold",
+    },
+    course: {
+      enabled: true,
+      x: 50,
+      y: 55,
+      size: 20,
+      hex: "#333333",
+      fontStyle: "normal",
+    },
+    issueDate: {
+      enabled: true,
+      x: 50,
+      y: 65,
+      size: 14,
+      hex: "#000000",
+      fontStyle: "normal",
+    },
+    qrCode: { enabled: readiness === "ready", x: 80, y: 85, scale: 0.5 },
+  });
+
+  const handleConfigChange = (
+    field: keyof typeof config,
+    key: string,
+    value: string | number | boolean,
+  ) => {
+    setConfig((prev) => ({
+      ...prev,
+      [field]: { ...prev[field], [key]: value },
+    }));
+  };
+
+  // --- Coordinate Visualizer Logic ---
+  useEffect(() => () => { if (pdfPreviewUrl) URL.revokeObjectURL(pdfPreviewUrl); }, [pdfPreviewUrl]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function inspectDataset() {
+      if (!excelFile) {
+        setEmailHeaders([]);
+        setSheetHeaders([]);
+        setSelectedEmailHeader("");
+        setSendEmails(false);
+        return;
+      }
+
+      setInspectingDataset(true);
+      try {
+        const buffer = await excelFile.arrayBuffer();
+        const datasetName = excelFile.name.toLowerCase();
+        let rows: Record<string, unknown>[] = [];
+
+        if (datasetName.endsWith(".csv")) {
+          const csvText = new TextDecoder().decode(buffer);
+          const workbook = xlsx.read(csvText, { type: "string" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          rows = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet);
+        } else {
+          const workbook = xlsx.read(buffer, { type: "buffer" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          rows = xlsx.utils.sheet_to_json<Record<string, unknown>>(sheet);
+        }
+
+        const headers = detectEmailHeaders(rows);
+        const allCols = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+        if (!cancelled) {
+          setSheetHeaders(allCols);
+          setEmailHeaders(headers);
+          
+          if (headers.length > 0) {
+            setSelectedEmailHeader(headers[0]);
+          } else if (allCols.length > 0) {
+            setSelectedEmailHeader("");
+          } else {
+            setSelectedEmailHeader("");
+          }
+
+          if (headers.length === 0) {
+            setSendEmails(false);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to inspect dataset for email columns", err);
+        if (!cancelled) {
+          setEmailHeaders([]);
+          setSheetHeaders([]);
+          setSelectedEmailHeader("");
+          setSendEmails(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setInspectingDataset(false);
+        }
+      }
+    }
+
+    inspectDataset();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [excelFile]);
+
+  const handlePdfClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!activeTarget) return;
+
+    // Get bounding box of the react-pdf page container
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    // Calculate percentage click (0-100 mapped from top-left)
+    const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
+    const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
+
+    // pdf-lib draws from bottom-left up, but standard coordinates usually start top-left
+    // We pass percentages and let the backend resolve the inversion and PDF scaling
+
+    handleConfigChange(activeTarget, "x", Number(xPercent.toFixed(2)));
+    handleConfigChange(activeTarget, "y", Number(yPercent.toFixed(2)));
+
+    // Clear active target after click
+    setActiveTarget(null);
+  };
+
+  const handlePreview = async () => {
+  if (!pdfFile || !excelFile) {
+    setError("Please upload both a PDF template and an Excel dataset.");
+    return;
+  }
+
+  setPreviewLoading(true);
+  setError(null);
+
+  const formData = new FormData();
+  formData.append("template", pdfFile);
+  formData.append("dataset", excelFile);
+  formData.append("settings", JSON.stringify(config));
+  formData.append("previewOnly", "true");
+  formData.append("saveToDb", "false");
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Preview failed.");
+
+    // Get the first certificate's PDF URL
+    const firstCert = data.certificates?.[0];
+    if (firstCert?.pdfUrl) {
+      setPreviewPdfUrl(firstCert.pdfUrl);
+      setShowPreviewModal(true);
+    }
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Preview failed.");
+  } finally {
+    setPreviewLoading(false);
+  }
+};
+
+  const handleGenerate = async () => {
+    if (!pdfFile || !excelFile) {
+      setError("Please upload both a PDF template and an Excel dataset.");
+      return;
+    }
+
+    if (sendEmails && !selectedEmailHeader) {
+      setError(
+        "Please select the spreadsheet column containing recipient emails, or disable email sending.",
+      );
+      return;
+    }
+
+    if (sendEmails && !customEmailBody.trim()) {
+      setError("Please enter the email message before sending certificates.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccessCount(null);
+    setBatchId(null);
+    setCertificates([]);
+    setStatusText("Uploading and processing files...");
+
+    const formData = new FormData();
+    formData.append("template", pdfFile);
+    formData.append("dataset", excelFile);
+    formData.append("settings", JSON.stringify({...config, qrCode: {...config.qrCode, enabled: saveToDb && config.qrCode.enabled}}));
+    formData.append("saveToDb", String(saveToDb));
+    formData.append("sendEmails", String(sendEmails));
+    formData.append("emailTemplate", emailTemplate);
+    formData.append("customEmailBody", customEmailBody.trim());
+    formData.append("emailHeader", selectedEmailHeader);
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate certificates.");
+      }
+
+      setResultSaved(saveToDb && Array.isArray(data.certificates) && data.certificates.length > 0 && data.certificates.every((certificate: {status?: string}) => certificate.status === "issued"));
+      setSuccessCount(data.count || 0);
+      setCertificates(data.certificates || []);
+      setBatchId(typeof data.batchId === "string" ? data.batchId : null);
+      const emailNotice = data.emailsSentCount
+        ? ` and emailed ${data.emailsSentCount}`
+        : "";
+      setStatusText(
+        `Successfully generated ${data.count} certificates${emailNotice}.`,
+      );
+
+      if (data.composeToken) {
+        router.push(`/app/compose?token=${data.composeToken}&batch=${data.batchId}`);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    setIsZipping(true);
+    try {
+      const zip = new JSZip();
+
+      const fetchPromises = certificates.map(async (cert) => {
+        const safeName = cert.name.replace(/[^a-zA-Z0-9]/g, "_");
+        const fileName = `${safeName}_${cert.certificateId}.pdf`;
+
+        if (cert.pdfUrl.startsWith("data:application/pdf;base64,")) {
+          const base64Data = cert.pdfUrl.replace(
+            "data:application/pdf;base64,",
+            "",
+          );
+          zip.file(fileName, base64Data, { base64: true });
+        } else {
+          // Try fetch S3 URL
+          try {
+            const response = await fetch(cert.pdfUrl);
+            if (!response.ok || !response.headers.get("content-type")?.includes("application/pdf")) throw new Error("PDF download failed; archive cancelled.");
+        const blob = await response.blob();
+            zip.file(fileName, blob);
+          } catch (err) {
+            throw err;
+          }
+        }
+      });
+
+      await Promise.all(fetchPromises);
+      const zipContent = await zip.generateAsync({ type: "blob" });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(zipContent);
+      link.download = `Sairam Certify_Certificates_${Date.now()}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to create ZIP archive.");
+    } finally {
+      setIsZipping(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
+      <main className="flex-1 flex flex-col items-center p-8 z-10 pt-24">
+        <div className="glow-bg" style={{ top: "10%" }}></div>
+
+        {/* Header Navbar Layer */}
+        <div className="w-full max-w-6xl mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-20">
+          <Link
+            href="/"
+            className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-[var(--color-neon-text)] shrink-0 whitespace-nowrap w-fit"
+          >
+            <Image
+              src="/sairam-mark.svg"
+              alt="Sairam Certify Logo"
+              width={32}
+              height={32}
+              className="rounded-lg object-contain shrink-0"
+            />
+            SAIRAM CERTIFY
+          </Link>
+          <div className="flex w-full flex-wrap items-stretch gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end sm:gap-3">
+            <Link
+              href="/"
+              className="btn-secondary basis-[calc(50%-0.25rem)] min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap sm:basis-auto sm:px-4 sm:flex-none"
+            >
+              <Home className="w-4 h-4" /> Home
+            </Link>
+            <Link
+              href="/dashboard"
+              className="btn-secondary basis-[calc(50%-0.25rem)] min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap sm:basis-auto sm:px-4 sm:flex-none"
+            >
+              <LayoutDashboard className="w-4 h-4" /> Gallery
+            </Link>
+            {status === "authenticated" ? (
+              <Link
+                href="/api/auth/signout"
+                className="btn-secondary basis-full min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap text-red-700 hover:text-red-800 hover:border-red-400 sm:basis-auto sm:px-4 sm:flex-none"
+              >
+                <LogOut className="w-4 h-4" /> Sign Out
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="btn-primary basis-full min-w-0 flex items-center justify-center gap-2 px-3 py-2 text-sm whitespace-nowrap sm:basis-auto sm:px-4 sm:flex-none"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="w-full max-w-6xl glass-card relative z-10">
+          <h1 className="text-3xl font-bold mb-2 text-center">
+            Certificate Generator
+          </h1>
+          <p className="text-[var(--color-neon-muted)] mb-8 text-center max-w-2xl mx-auto">
+            Upload your base PDF template and an Excel or CSV mapping file to
+            prepare certificates in bulk. {canIssue ? "Saved certificates and verification QR are enabled by default." : "Guest downloads are unverified."}
+          </p>
+
+          <div className="mb-6 flex flex-wrap justify-center gap-4 text-sm">
+            <a className="underline" href="/demo/sairam-participation-template.pdf" download>Demo certificate template (PDF)</a>
+            <a className="underline" href="/demo/participants-10.xlsx" download>10 fictional participants (Excel)</a>
+            <a className="underline" href="/demo/participants-10.csv" download>CSV</a>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* LEFT COLUMN: Visualizer */}
+            <div className="flex flex-col space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                {/* PDF Upload */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-[var(--color-neon-text)]">
+                    Base Template
+                  </label>
+                  <div className="relative group border-2 border-dashed border-[var(--color-neon-border)] rounded-xl p-6 text-center transition-colors hover:border-[var(--color-neon-primary)] cursor-pointer h-32 flex items-center justify-center">
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={(e) => { const file = e.target.files?.[0] || null; setPdfFile(file); setPdfPreviewUrl(file ? URL.createObjectURL(file) : null); }}
+                    />
+                    <div className="flex flex-col items-center pointer-events-none">
+                      <FileUp className="w-6 h-6 mb-2 text-[var(--color-neon-primary)]" />
+                      <span className="text-xs">
+                        {pdfFile ? (
+                          <span className="text-[var(--color-neon-primary)] truncate max-w-[120px] block">
+                            {pdfFile.name}
+                          </span>
+                        ) : (
+                          "Browse PDF"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Excel Upload */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-[var(--color-neon-text)]">
+                    Dataset
+                  </label>
+                  <div className="relative group border-2 border-dashed border-[var(--color-neon-border)] rounded-xl p-6 text-center transition-colors hover:border-[var(--color-neon-secondary)] cursor-pointer h-32 flex items-center justify-center">
+                    <input
+                      type="file"
+                      accept=".xlsx, .xls, .csv"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={(e) =>
+                        setExcelFile(e.target.files?.[0] || null)
+                      }
+                    />
+                    <div className="flex flex-col items-center pointer-events-none">
+                      <FileSpreadsheet className="w-6 h-6 mb-2 text-[var(--color-neon-secondary)]" />
+                      <span className="text-xs">
+                        {excelFile ? (
+                          <span className="text-[var(--color-neon-secondary)] truncate max-w-[120px] block">
+                            {excelFile.name}
+                          </span>
+                        ) : (
+                          "Browse Excel/CSV"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* PDF Visual Coordinate Assistant */}
+              {pdfPreviewUrl ? (
+                <div className="flex-1 flex flex-col min-h-[500px]">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-lg font-semibold text-[var(--color-neon-primary)]">
+                      Visualizer
+                    </h3>
+                    <button
+                      onClick={() => setIsFullscreen(true)}
+                      className="text-xs bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)] text-[var(--color-neon-text)] px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      Open Fullscreen Map
+                    </button>
+                  </div>
+                  <p className="text-xs text-[var(--color-neon-muted)] mb-4">
+                    Click &quot;Target&quot; on a setting, then click the
+                    preview. Drag markers to adjust.
+                  </p>
+
+                  <div className="relative border-2 border-[var(--color-neon-border)] rounded-xl overflow-hidden bg-slate-50 flex flex-1 items-center justify-center p-4">
+                    <div
+                      className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                      onClick={handlePdfClick}
+                      onMouseMove={(e) => {
+                        if (draggingTarget) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const xPercent =
+                            ((e.clientX - rect.left) / rect.width) * 100;
+                          const yPercent =
+                            ((e.clientY - rect.top) / rect.height) * 100;
+
+                          // Clamp between 0 and 100
+                          const finalX = Math.max(0, Math.min(100, xPercent));
+                          const finalY = Math.max(0, Math.min(100, yPercent));
+
+                          handleConfigChange(
+                            draggingTarget,
+                            "x",
+                            Number(finalX.toFixed(2)),
+                          );
+                          handleConfigChange(
+                            draggingTarget,
+                            "y",
+                            Number(finalY.toFixed(2)),
+                          );
+                        }
+                      }}
+                      onMouseUp={() => setDraggingTarget(null)}
+                      onMouseLeave={() => setDraggingTarget(null)}
+                    >
+                      <PdfPreview fileUrl={pdfPreviewUrl} />
+
+                      {/* Visual Markers */}
+                      {(["name", "course", "issueDate", "qrCode"] as const).map(
+                        (key) => {
+                          const fieldParams = config[key];
+                          if (!fieldParams.enabled) return null;
+
+                          // Explicit UI Colors
+                          const markerColor = MARKER_COLORS[key];
+
+                          return (
+                            <div
+                              key={key}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                setDraggingTarget(key);
+                              }}
+                              className={`absolute w-4 h-4 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg cursor-grab active:cursor-grabbing pointer-events-auto z-50 flex items-center justify-center text-[10px] font-bold text-white uppercase ${draggingTarget === key ? "scale-150 animate-pulse" : ""}`}
+                              style={{
+                                left: `${fieldParams.x}%`,
+                                top: `${fieldParams.y}%`,
+                                backgroundColor: markerColor,
+                                boxShadow: `0 0 10px ${markerColor}80`,
+                              }}
+                              title={`Drag to move ${key}`}
+                            ></div>
+                          );
+                        },
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-neon-border)] rounded-xl bg-slate-50 text-[var(--color-neon-muted)] p-8 text-center min-h-[500px]">
+                  <Crosshair className="w-12 h-12 mb-4 opacity-30" />
+                  <p>Upload a Base Template (PDF) to activate the Visualizer</p>
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT COLUMN: Settings */}
+            <div className="flex flex-col h-full space-y-6">
+              {/* Advanced Configuration Options */}
+              <div className="flex-1 border border-[var(--color-neon-border)] rounded-xl bg-[var(--color-neon-surface)] p-6 space-y-6 flex flex-col">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-[var(--color-neon-primary)]">
+                      Advanced Configuration
+                    </h3>
+                    <p className="text-xs text-[var(--color-neon-muted)] mt-1">
+                      Fine-tune formatting & coordinates.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6 divide-y divide-[var(--color-neon-border)]/50 flex-1 overflow-y-auto pr-2">
+                  {/* Name settings */}
+                  <div className="pt-4 first:pt-0">
+                    <div className="flex items-center justify-between mb-3">
+                      <div
+                        className="flex items-center space-x-3 cursor-pointer group"
+                        onClick={() =>
+                          handleConfigChange(
+                            "name",
+                            "enabled",
+                            !config.name.enabled,
+                          )
+                        }
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full flex-shrink-0 transition-colors"
+                          style={{
+                            backgroundColor: config.name.enabled
+                              ? MARKER_COLORS.name
+                              : "var(--color-neon-surface-hover)",
+                            boxShadow: config.name.enabled
+                              ? `0 0 8px ${MARKER_COLORS.name}99`
+                              : "none",
+                          }}
+                        ></span>
+                        <div
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors border ${config.name.enabled ? "border-transparent" : "border-[var(--color-neon-border)]"}`}
+                          style={{
+                            backgroundColor: config.name.enabled
+                              ? MARKER_COLORS.name
+                              : "transparent",
+                          }}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${config.name.enabled ? "translate-x-4" : "translate-x-1"}`}
+                          />
+                        </div>
+                        <span
+                          className="font-semibold transition-colors"
+                          style={{
+                            color: config.name.enabled
+                              ? "var(--color-neon-text)"
+                              : "var(--color-neon-muted)",
+                          }}
+                        >
+                          Recipient Name
+                        </span>
+                      </div>
+                      {config.name.enabled && (
+                        <button
+                          onClick={() =>
+                            setActiveTarget(
+                              activeTarget === "name" ? null : "name",
+                            )
+                          }
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "name" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                        >
+                          <Crosshair className="w-3 h-3 mr-1.5" />{" "}
+                          {activeTarget === "name"
+                            ? "Select on Preview..."
+                            : "Target"}
+                        </button>
+                      )}
+                    </div>
+                    {config.name.enabled && (
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Font Size
+                          </label>
+                          <input
+                            type="number"
+                            value={config.name.size}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "name",
+                                "size",
+                                Number(e.target.value),
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Style
+                          </label>
+                          <select
+                            value={config.name.fontStyle}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "name",
+                                "fontStyle",
+                                e.target.value,
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-[var(--color-neon-text)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                            <option value="italic">Italic</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Color
+                          </label>
+                          <div className="flex items-center gap-2 bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-1.5">
+                            <input
+                              type="color"
+                              value={config.name.hex}
+                              onChange={(e) =>
+                                handleConfigChange(
+                                  "name",
+                                  "hex",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent flex-shrink-0"
+                            />
+                            <span className="text-xs font-mono uppercase text-[var(--color-neon-muted)] truncate">
+                              {config.name.hex}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Course settings */}
+                  <div className="pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div
+                        className="flex items-center space-x-3 cursor-pointer group"
+                        onClick={() =>
+                          handleConfigChange(
+                            "course",
+                            "enabled",
+                            !config.course.enabled,
+                          )
+                        }
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full flex-shrink-0 transition-colors"
+                          style={{
+                            backgroundColor: config.course.enabled
+                              ? MARKER_COLORS.course
+                              : "var(--color-neon-surface-hover)",
+                            boxShadow: config.course.enabled
+                              ? `0 0 8px ${MARKER_COLORS.course}99`
+                              : "none",
+                          }}
+                        ></span>
+                        <div
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors border ${config.course.enabled ? "border-transparent" : "border-[var(--color-neon-border)]"}`}
+                          style={{
+                            backgroundColor: config.course.enabled
+                              ? MARKER_COLORS.course
+                              : "transparent",
+                          }}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${config.course.enabled ? "translate-x-4" : "translate-x-1"}`}
+                          />
+                        </div>
+                        <span
+                          className="font-semibold transition-colors"
+                          style={{
+                            color: config.course.enabled
+                              ? "var(--color-neon-text)"
+                              : "var(--color-neon-muted)",
+                          }}
+                        >
+                          Course Name
+                        </span>
+                      </div>
+                      {config.course.enabled && (
+                        <button
+                          onClick={() =>
+                            setActiveTarget(
+                              activeTarget === "course" ? null : "course",
+                            )
+                          }
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "course" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                        >
+                          <Crosshair className="w-3 h-3 mr-1.5" />{" "}
+                          {activeTarget === "course"
+                            ? "Select on Preview..."
+                            : "Target"}
+                        </button>
+                      )}
+                    </div>
+                    {config.course.enabled && (
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Font Size
+                          </label>
+                          <input
+                            type="number"
+                            value={config.course.size}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "course",
+                                "size",
+                                Number(e.target.value),
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Style
+                          </label>
+                          <select
+                            value={config.course.fontStyle}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "course",
+                                "fontStyle",
+                                e.target.value,
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-[var(--color-neon-text)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                            <option value="italic">Italic</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Color
+                          </label>
+                          <div className="flex items-center gap-2 bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-1.5">
+                            <input
+                              type="color"
+                              value={config.course.hex}
+                              onChange={(e) =>
+                                handleConfigChange(
+                                  "course",
+                                  "hex",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent flex-shrink-0"
+                            />
+                            <span className="text-xs font-mono uppercase text-[var(--color-neon-muted)] truncate">
+                              {config.course.hex}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Issue Date settings */}
+                  <div className="pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div
+                        className="flex items-center space-x-3 cursor-pointer group"
+                        onClick={() =>
+                          handleConfigChange(
+                            "issueDate",
+                            "enabled",
+                            !config.issueDate.enabled,
+                          )
+                        }
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full flex-shrink-0 transition-colors"
+                          style={{
+                            backgroundColor: config.issueDate.enabled
+                              ? MARKER_COLORS.issueDate
+                              : "var(--color-neon-surface-hover)",
+                            boxShadow: config.issueDate.enabled
+                              ? `0 0 8px ${MARKER_COLORS.issueDate}99`
+                              : "none",
+                          }}
+                        ></span>
+                        <div
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors border ${config.issueDate.enabled ? "border-transparent" : "border-[var(--color-neon-border)]"}`}
+                          style={{
+                            backgroundColor: config.issueDate.enabled
+                              ? MARKER_COLORS.issueDate
+                              : "transparent",
+                          }}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${config.issueDate.enabled ? "translate-x-4" : "translate-x-1"}`}
+                          />
+                        </div>
+                        <span
+                          className="font-semibold transition-colors"
+                          style={{
+                            color: config.issueDate.enabled
+                              ? "var(--color-neon-text)"
+                              : "var(--color-neon-muted)",
+                          }}
+                        >
+                          Issue Date
+                        </span>
+                      </div>
+                      {config.issueDate.enabled && (
+                        <button
+                          onClick={() =>
+                            setActiveTarget(
+                              activeTarget === "issueDate" ? null : "issueDate",
+                            )
+                          }
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "issueDate" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                        >
+                          <Crosshair className="w-3 h-3 mr-1.5" />{" "}
+                          {activeTarget === "issueDate"
+                            ? "Select on Preview..."
+                            : "Target"}
+                        </button>
+                      )}
+                    </div>
+                    {config.issueDate.enabled && (
+                      <div className="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Font Size
+                          </label>
+                          <input
+                            type="number"
+                            value={config.issueDate.size}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "issueDate",
+                                "size",
+                                Number(e.target.value),
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Style
+                          </label>
+                          <select
+                            value={config.issueDate.fontStyle}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "issueDate",
+                                "fontStyle",
+                                e.target.value,
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-[var(--color-neon-text)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                            <option value="italic">Italic</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Color
+                          </label>
+                          <div className="flex items-center gap-2 bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-1.5">
+                            <input
+                              type="color"
+                              value={config.issueDate.hex}
+                              onChange={(e) =>
+                                handleConfigChange(
+                                  "issueDate",
+                                  "hex",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent flex-shrink-0"
+                            />
+                            <span className="text-xs font-mono uppercase text-[var(--color-neon-muted)] truncate">
+                              {config.issueDate.hex}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* QR Code settings */}
+                  <div className="pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <button type="button" role="switch" aria-label="QR Code Badge" aria-checked={saveToDb && config.qrCode.enabled} disabled={!canIssue}
+                        className={`flex items-center space-x-3 transition-opacity ${!canIssue ? "opacity-50 cursor-not-allowed" : "cursor-pointer group"}`}
+                        onClick={() => {
+                          if (!canIssue) return;
+                          const next = !(saveToDb && config.qrCode.enabled);
+                          setSaveToDb(next);
+                          handleConfigChange("qrCode", "enabled", next);
+                        }}
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full flex-shrink-0 transition-colors"
+                          style={{
+                            backgroundColor: config.qrCode.enabled
+                              ? MARKER_COLORS.qrCode
+                              : "var(--color-neon-surface-hover)",
+                            boxShadow: config.qrCode.enabled
+                              ? `0 0 8px ${MARKER_COLORS.qrCode}99`
+                              : "none",
+                          }}
+                        ></span>
+                        <div
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors border ${config.qrCode.enabled ? "border-transparent" : "border-[var(--color-neon-border)]"}`}
+                          style={{
+                            backgroundColor: config.qrCode.enabled
+                              ? MARKER_COLORS.qrCode
+                              : "transparent",
+                          }}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${config.qrCode.enabled ? "translate-x-4" : "translate-x-1"}`}
+                          />
+                        </div>
+                        <span
+                          className="font-semibold transition-colors"
+                          style={{
+                            color: config.qrCode.enabled
+                              ? "var(--color-neon-text)"
+                              : "var(--color-neon-muted)",
+                          }}
+                        >
+                          QR Code Badge
+                        </span>
+                      </button>
+                      {config.qrCode.enabled && (
+                        <button
+                          onClick={() =>
+                            setActiveTarget(
+                              activeTarget === "qrCode" ? null : "qrCode",
+                            )
+                          }
+                          className={`text-xs px-3 py-1.5 rounded-lg flex items-center transition-colors ${activeTarget === "qrCode" ? "bg-[var(--color-neon-primary)] text-white font-bold" : "bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"}`}
+                        >
+                          <Crosshair className="w-3 h-3 mr-1.5" />{" "}
+                          {activeTarget === "qrCode"
+                            ? "Select on Preview..."
+                            : "Target"}
+                        </button>
+                      )}
+                    </div>
+                    {config.qrCode.enabled && (
+                      <div className="grid grid-cols-1 gap-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50 mt-2">
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Scale Multiplier
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={config.qrCode.scale}
+                            onChange={(e) =>
+                              handleConfigChange(
+                                "qrCode",
+                                "scale",
+                                Number(e.target.value),
+                              )
+                            }
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Email delivery settings */}
+                  <div className="pt-4 border-t border-[var(--color-neon-border)]/30 mt-2 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-[var(--color-neon-text)]">
+                          Email Delivery
+                        </h4>
+                        <p className="text-xs text-[var(--color-neon-muted)] mt-1">Email delivery is off for this personal pilot. Download your certificates directly.</p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={true}
+                        onClick={() => {
+                          if (sheetHeaders.length === 0 || inspectingDataset || status === "unauthenticated") return;
+                          setSendEmails((prev) => {
+                            const next = !prev;
+                            if (next && !saveToDb) {
+                              setSaveToDb(true);
+                            }
+                            return next;
+                          });
+                        }}
+                        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors border ${sendEmails ? "border-transparent bg-green-500" : "border-[var(--color-neon-border)] bg-transparent"} ${(sheetHeaders.length === 0 || inspectingDataset || status === "unauthenticated") ? "opacity-50 cursor-not-allowed" : ""}`}
+                        title="Email delivery is off" aria-label="Email delivery is off"
+                      >
+                        <span
+                          className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${sendEmails ? "translate-x-4" : "translate-x-1"}`}
+                        />
+                      </button>
+                    </div>
+
+                    {sendEmails && sheetHeaders.length > 0 && (
+                      <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-[var(--color-neon-border)]/50">
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Recipient Email Column <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={selectedEmailHeader}
+                            onChange={(e) => setSelectedEmailHeader(e.target.value)}
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] text-[var(--color-neon-text)] rounded-lg p-2.5 text-sm focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          >
+                            <option value="" disabled>-- Select Column containing Email --</option>
+                            {sheetHeaders.map((col) => (
+                              <option key={col} value={col}>
+                                {col} {emailHeaders.includes(col) ? "(Auto-detected)" : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Email Template
+                          </label>
+                          <select
+                            value={emailTemplate}
+                            onChange={(e) => {
+                              const nextTemplate = e.target.value as EmailTemplateId;
+                              setEmailTemplate(nextTemplate);
+                              setCustomEmailBody(EMAIL_TEMPLATES[nextTemplate].body);
+                            }}
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-2.5 text-sm text-[var(--color-neon-text)] focus:border-[var(--color-neon-primary)] outline-none transition-colors"
+                          >
+                            {(Object.entries(EMAIL_TEMPLATES) as [
+                              EmailTemplateId,
+                              (typeof EMAIL_TEMPLATES)[EmailTemplateId],
+                            ][]).map(([key, template]) => (
+                              <option key={key} value={key}>
+                                {template.label} - {template.subject}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-[var(--color-neon-muted)] font-medium mb-1 block">
+                            Email Message
+                          </label>
+                          <textarea
+                            value={customEmailBody}
+                            onChange={(e) => setCustomEmailBody(e.target.value)}
+                            rows={6}
+                            placeholder="Write a message to include in the email..."
+                            className="w-full bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-lg p-3 text-sm text-[var(--color-neon-text)] focus:border-[var(--color-neon-primary)] outline-none transition-colors resize-y"
+                          />
+                          <p className="text-[11px] text-[var(--color-neon-muted)] mt-2">
+                            Use <span className="text-[var(--color-neon-primary)]">{`{name}`}</span> to personalize each email.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Verified generation is the ready issuer default. Guest export stays explicit. */}
+                  <div className="pt-4 border-t border-[var(--color-neon-border)]/30 mt-2">
+                    <label className="flex items-center gap-3 font-semibold">
+                      <input type="checkbox" checked={saveToDb} disabled={!canIssue}
+                        onChange={event => {
+                          const next = event.target.checked;
+                          setSaveToDb(next);
+                          setSendEmails(false);
+                          setConfig(current => ({...current, qrCode: {...current.qrCode, enabled: next}}));
+                        }} className="h-5 w-5 accent-[#315b78]" />
+                      Save verified certificates with QR
+                    </label>
+                    <p className="text-sm mt-2 text-[var(--color-neon-muted)]" role="status">
+                      {status === "loading" ? "Checking your sign-in…" : saveToDb
+                        ? "Certificates will be saved privately. QR codes open their permanent verification pages."
+                        : canIssue ? "Local-only export selected. These PDFs are unverified and have no verification QR."
+                        : readiness === "unavailable" ? "Verified issuance is temporarily unavailable: database or private storage is not ready. Reload to check again. Local-only exports remain unverified."
+                        : readiness === "unauthorized" ? "This account does not have certificate-issuing access. Local-only exports are unverified."
+                        : "Sign in with your issuer account for saved certificates and verification QR. Guest PDFs are unverified."}
+                    </p>
+                    {sendEmails && selectedEmailHeader && (
+                      <p className="text-xs text-[var(--color-neon-primary)] mt-2">
+                        Email sending is enabled. Each row with a valid email address will receive the selected template after generation.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-col gap-3">
+                {/* Preview Button */}
+                <button
+                  onClick={handlePreview}
+                  disabled={previewLoading || loading || !pdfFile || !excelFile}
+                  className="w-full btn-secondary py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {previewLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating Preview...
+                    </>
+                  ) : (
+                    "\uD83D\uDC41 Preview First Row"
+                  )}
+                </button>
+
+                {/* Generate Button */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={loading || status === "loading"}
+                  className="w-full btn-primary py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin text-white" />
+                      Generating...
+                    </>
+                  ) : (
+                    saveToDb ? "Generate Verified Certificates" : "Generate Certificates"
+                  )}
+                </button>
+              </div>
+
+              {/* Status Feedback */}
+              {error && (
+                <div className="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-start text-red-800">
+                  <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5 text-red-400" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
+              {successCount !== null && (
+                <div className="mt-4 p-4 rounded-xl bg-[#00e599]/10 border border-[#00e599]/30 flex items-start text-emerald-800">
+                  <CheckCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Success!</p>
+                    <p className="text-sm text-emerald-800/80">{statusText}</p>
+                    {batchId && resultSaved ? (
+                      <Link
+                        href={`/dashboard/batches/${batchId}`}
+                        className="inline-flex items-center gap-2 mt-3 text-sm font-medium text-emerald-800 hover:underline"
+                      >
+                        Open batch dashboard
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Generated Certificates List view */}
+        {certificates.length > 0 && (
+          <div className="w-full max-w-4xl mt-12 mb-20 relative z-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <CheckCircle className="w-6 h-6 mr-3 text-[var(--color-neon-primary)]" />
+              Generated Documents
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {certificates.map((cert) => (
+                <div
+                  key={cert.certificateId}
+                  className="glass-card min-w-0 flex flex-col p-5 hover:border-[var(--color-neon-primary)] transition-colors group"
+                >
+                  <div className="flex flex-wrap gap-3 justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-semibold text-lg">{cert.name}</h3>
+                      <p className="text-[var(--color-neon-muted)] text-sm">
+                        {cert.course}
+                      </p>
+                    </div>
+                    <span className="text-xs font-mono text-[var(--color-neon-primary)] bg-[#00e599]/10 px-2 py-1 rounded">
+                      {cert.certificateId}
+                    </span>
+                  </div>
+                  <div className="flex gap-3 mt-auto pt-2">
+                    <a
+                      href={cert.pdfUrl}
+                      download={`${cert.certificateId}.pdf`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)] px-3 py-2 rounded-lg flex-1 text-center transition-colors"
+                    >
+                      Download PDF
+                    </a>
+                    {resultSaved ? <a
+                      href={`/verify/${cert.certificateId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] flex-1 px-3 py-2 rounded-lg text-center transition-colors"
+                    >
+                      Verify Page
+                    </a> : <span className="text-xs p-2">Guest PDF · Unverified</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 flex justify-center">
+              <button
+                onClick={handleDownloadZip}
+                disabled={isZipping}
+                className="bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] py-3 px-8 rounded-xl flex items-center justify-center gap-3 group transition-all duration-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,153,0.3)] hover:shadow-[0_0_30px_rgba(0,229,153,0.5)]"
+              >
+                {isZipping ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Download className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                )}
+                {isZipping ? "Creating ZIP Archive..." : "Download All as ZIP"}
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Fullscreen PDF Map Modal */}
+        {isFullscreen && pdfPreviewUrl && (
+          <div className="fixed inset-0 z-[100] bg-white backdrop-blur-sm flex flex-col">
+            <div className="p-4 flex items-center justify-between border-b border-[var(--color-neon-border)]/50 bg-slate-50">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--color-neon-primary)]">
+                  Fullscreen Template Map
+                </h2>
+                <p className="text-xs text-[var(--color-neon-muted)]">
+                  Drag the colored markers perfectly into place
+                </p>
+              </div>
+              <button
+                onClick={() => setIsFullscreen(false)}
+                className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto flex items-center justify-center p-8">
+              <div
+                className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                onClick={handlePdfClick}
+                onMouseMove={(e) => {
+                  if (draggingTarget) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const xPercent =
+                      ((e.clientX - rect.left) / rect.width) * 100;
+                    const yPercent =
+                      ((e.clientY - rect.top) / rect.height) * 100;
+
+                    const finalX = Math.max(0, Math.min(100, xPercent));
+                    const finalY = Math.max(0, Math.min(100, yPercent));
+
+                    handleConfigChange(
+                      draggingTarget,
+                      "x",
+                      Number(finalX.toFixed(2)),
+                    );
+                    handleConfigChange(
+                      draggingTarget,
+                      "y",
+                      Number(finalY.toFixed(2)),
+                    );
+                  }
+                }}
+                onMouseUp={() => setDraggingTarget(null)}
+                onMouseLeave={() => setDraggingTarget(null)}
+              >
+                {/* We re-mount the preview in the popup. It handles its own scaling/fit usually, but here it's full size */}
+                <PdfPreview fileUrl={pdfPreviewUrl} />
+
+                {/* Visual Markers mapped at exactly the same absolute coordinate */}
+                {(["name", "course", "issueDate", "qrCode"] as const).map(
+                  (key) => {
+                    const fieldParams = config[key];
+                    if (!fieldParams.enabled) return null;
+
+                    const markerColor = MARKER_COLORS[key];
+
+                    return (
+                      <div
+                        key={key}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          setDraggingTarget(key);
+                        }}
+                        className={`absolute w-6 h-6 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/2 shadow-2xl cursor-grab active:cursor-grabbing pointer-events-auto z-50 flex items-center justify-center text-[10px] font-bold text-white uppercase ${draggingTarget === key ? "scale-150 animate-pulse" : ""}`}
+                        style={{
+                          left: `${fieldParams.x}%`,
+                          top: `${fieldParams.y}%`,
+                          backgroundColor: markerColor,
+                          boxShadow: `0 0 15px ${markerColor}`,
+                        }}
+                        title={`Drag to move ${key}`}
+                      ></div>
+                    );
+                  },
+                )}
+              </div>
+            </div>
+
+            {/* Controls Footer Overlay visible in Fullscreen */}
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-[var(--color-neon-surface)] border border-[var(--color-neon-border)] p-4 rounded-xl flex gap-4 shadow-2xl z-[110]">
+              {(["name", "course", "issueDate", "qrCode"] as const).map(
+                (key) => {
+                  const fieldParams = config[key];
+                  if (!fieldParams.enabled) return null;
+                  const color = MARKER_COLORS[key];
+                  const isActive = activeTarget === key;
+
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setActiveTarget(isActive ? null : key)}
+                      className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all ${isActive ? "ring-2 ring-white scale-105" : "hover:scale-105"}`}
+                      style={{
+                        backgroundColor: color + "20",
+                        color: color,
+                        border: `1px solid ${color}50`,
+                      }}
+                    >
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: color }}
+                      ></div>
+                      {key.charAt(0).toUpperCase() + key.slice(1)}{" "}
+                      {isActive ? "(Click map...)" : ""}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>
+        )}
+        {showPreviewModal && previewPdfUrl && (
+  <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+    <div className="bg-[var(--color-neon-surface)] border border-[var(--color-neon-border)] rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl">
+      
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[var(--color-neon-text)]">Certificate Preview</h2>
+          <p className="text-xs text-[var(--color-neon-muted)] mt-1">
+            Using data from row 1 of your dataset
+          </p>
+        </div>
+        <button
+          onClick={() => { setShowPreviewModal(false); setPreviewPdfUrl(null); }}
+          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Reuse existing PdfPreview component */}
+      <div className="rounded-xl overflow-hidden border border-[var(--color-neon-border)] bg-slate-50 max-h-[60vh] overflow-y-auto">
+        <PdfPreview fileUrl={previewPdfUrl} />
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => { setShowPreviewModal(false); setPreviewPdfUrl(null); }}
+          className="flex-1 btn-secondary py-2.5 text-sm"
+        >
+          ← Edit Settings
+        </button>
+        <button
+          onClick={() => { setShowPreviewModal(false); setPreviewPdfUrl(null); handleGenerate(); }}
+          className="flex-1 btn-primary py-2.5 text-sm"
+        >
+          ✅ Looks Good — Generate All
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+      </main>
+
+      {/* ─── Footer ─── */}
+      <footer className="p-8 text-center text-sm">Built from Adhithya.com · <a href="https://wa.me/917305480362">WhatsApp</a></footer>
+    </div>
+  );
+}
