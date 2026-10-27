@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { generateCertificate } from "@/lib/generateCertificate";
 import { uploadToS3 } from "@/lib/s3";
 import { sendCertificateEmail } from "@/lib/certificateEmail";
+import { safeFetch } from "@/lib/url-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         return NextResponse.json({ error: "Not retryable" }, { status: 400 });
     }
 
-    const templateResponse = await fetch(certificate.templateUrl);
+    const templateResponse = await safeFetch(certificate.templateUrl);
     if (!templateResponse.ok) {
         const failureReason = `Failed to fetch templateUrl (HTTP ${templateResponse.status}).`;
         await prisma.certificate.update({
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     }
 
     const templateBuffer = await templateResponse.arrayBuffer();
+    if (templateBuffer.byteLength > 10 * 1024 * 1024) {
+        return NextResponse.json({ error: "Template exceeds the 10 MB limit." }, { status: 413 });
+    }
     const protocol = req.headers.get("x-forwarded-proto") ?? "https";
     const host = req.headers.get("host") ?? "vurakit.in";
     const baseUrl = `${protocol}://${host}`;
