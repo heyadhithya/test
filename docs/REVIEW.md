@@ -15,3 +15,8 @@ Independent security_review inspected NextAuth internals, the new provider, auth
 ## Distributed auth guard review
 
 Independent reviewer found no authentication bypass and confirmed admission denial exits NextAuth before link-token creation/delivery. Applied review recommendations: explicit ReadCommitted isolation, server statement timeout 2s and lock timeout 500ms, schema-qualified SQL. Reviewed nonblocking advisory lock, conservative shared budgets and cleanup limit100 with SKIP LOCKED. Proposed index remains unapplied; AUTH_GUARDS_READY must remain disabled until approved live database tests verify concurrency, rollback and query plans. No external mutation occurred in this phase.
+
+
+## Real PostgreSQL validation and approved index application
+
+Independent reviewer inspected the disposable PostgreSQL17.11 evidence and confirmed the single CREATE INDEX changes no tables, grants, policies or user records. Local tests passed before hosted application. Target identity, table columns and existing indexes were rechecked; the index migration succeeded on vvucjlhjrbsxjtdcflwf with bounded lock/statement timeouts. Post-apply metadata confirms valid/ready. No auth activation or hosted data mutation occurred.

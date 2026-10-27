@@ -1,0 +1,17 @@
+PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+CREATE INDEX "VerificationToken_expires_token_idx" ON public."VerificationToken" USING btree (expires, token)
+PASS two-client racing admission: exactly one success and two markers
+PASS shared minute budget across recipients
+PASS hourly global budget
+PASS recipient quota, cooldown aging and expired-budget recovery
+PASS cleanup exactly100; unexpired token preserved
+PASS rollback restores cleanup and removes budget markers
+PASS cleanup skips concurrently locked token
+PASS transaction lock contention denies without writes
+PASS real PostgreSQL atomic token consumption under10 racing consumers
+Limit  (cost=0.28..26.13 rows=100 width=42)
+  ->  LockRows  (cost=0.28..64.90 rows=250 width=42)
+        ->  Index Scan using "VerificationToken_expires_token_idx" on "VerificationToken"  (cost=0.28..62.40 rows=250 width=42)
+              Index Cond: (expires < CURRENT_TIMESTAMP)
+PASS natural cleanup query plan uses proposed index
+PASS all disposable PostgreSQL guard checks; no email or hosted data used
