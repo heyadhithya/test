@@ -38,3 +38,6 @@ Independent reviewer confirmed server-only readiness and preserved endpoint issu
 
 ## Generated demo reference review
 Independent reviewer confirmed exact static fictional IDs, unknown-ID404, explicit noncredential wording, and no database/auth access. Corrected ambiguous template/README wording about demo QR. Ten generated PDFs independently decoded and local route responses validated.
+
+## White interface refinement review
+Independent reviewer checked generator switch semantics, preserved QR/default/result state, auth styling-only changes and registry label behavior; no blocker. Relevant regressions independently passed. Full38tests, lint/type/build/audit and mobile/desktop synthetic browser proof completed.

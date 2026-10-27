@@ -44,7 +44,7 @@ export default function DashboardSidebar({ user }: Props) {
             <div className="px-6 py-5 border-b border-[var(--color-neon-border)]">
                 <Link href="/" className="flex items-center gap-2 group">
                     <Image unoptimized width={40} height={40} src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
-                    <span className="text-lg font-black tracking-widest uppercase text-[var(--color-neon-text)]">SAIRAM CERTIFY</span>
+                    <span className="text-lg font-semibold tracking-tight text-[var(--color-neon-text)]">Sairam Certify</span>
                 </Link>
             </div>
 
@@ -54,7 +54,7 @@ export default function DashboardSidebar({ user }: Props) {
                     {user.image ? (
                         <Image unoptimized width={40} height={40} src={user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-[var(--color-neon-primary)]/50 shrink-0 object-cover" />
                     ) : (
-                        <div className="w-9 h-9 rounded-full bg-[var(--color-neon-primary)]/20 border border-[var(--color-neon-primary)]/30 flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-[var(--color-neon-primary)]/20 border border-slate-200 flex items-center justify-center shrink-0">
                             <User className="w-4 h-4 text-[var(--color-neon-primary)]" />
                         </div>
                     )}
@@ -74,9 +74,10 @@ export default function DashboardSidebar({ user }: Props) {
                         <Link
                             key={href}
                             href={href}
+                            aria-current={active ? "page" : undefined}
                             onClick={() => setMobileOpen(false)}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${active
-                                ? "bg-[var(--color-neon-primary)]/15 text-[var(--color-neon-primary)] border border-[var(--color-neon-primary)]/30"
+                            className={`flex items-center gap-3 min-h-11 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group ${active
+                                ? "bg-slate-100 text-[var(--color-neon-primary)] border border-slate-200"
                                 : "text-[var(--color-neon-muted)] hover:text-[var(--color-neon-text)] hover:bg-slate-100"
                                 }`}
                         >
@@ -115,7 +116,7 @@ export default function DashboardSidebar({ user }: Props) {
             <button
                 aria-label="Open navigation" aria-expanded={mobileOpen}
                 onClick={() => setMobileOpen(true)}
-                className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-white border border-[var(--color-neon-border)] flex items-center justify-center shadow-lg"
+                className="md:hidden fixed top-4 left-4 z-50 w-11 h-11 rounded-xl bg-white border border-[var(--color-neon-border)] flex items-center justify-center shadow-lg"
             >
                 <LayoutDashboard className="w-5 h-5 text-[var(--color-neon-primary)]" />
             </button>

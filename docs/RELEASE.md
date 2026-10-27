@@ -1,3 +1,9 @@
+## Restrained white interface refinement
+
+Design rationale: keep the fast existing workflow, use clearer typography and section hierarchy, replace decorative framing with white space and restrained borders, and make control states consistent. No new dependencies, fonts, trackers or authentication changes. The generator has a compact optional demo kit, template/participant and layout sections, native keyboard-operated field switches, and visible error/status feedback. Navigation has larger targets and current-page semantics; login/setup/verification surfaces share the same visual language. The exact footer remains unchanged.
+
+Validation: 38 tests; clean lint, TypeScript and build; audit0. Independent review found no blocker. Browser inspection covered360/390/768/1440 widths without horizontal overflow, keyboard field switches, demo disclosure, error states, login and verification. Synthetic authenticated drawer checks confirmed focus containment and Escape dismissal. The real local password/CSRF/session + PostgreSQL ten-row issuance/QR decode/private-download regression passed; storage remains a local HTTP fixture for that test. No live owner session or credentials were accessed. No monthly-capacity or overall production-readiness claim follows from these UI checks.
+
 ## Downloadable generated demo kit
 
 `/demo/sairam-demo-certificates-10.zip` contains ten original generated sample PDFs plus a README. `/demo/sample-participation.pdf` is one sample. Their QR codes point to `/demo/verify/DEMO-001` through `DEMO-010`: static fictional sample references explicitly labelled NOT AN OFFICIAL CREDENTIAL. These routes never query the owner registry and do not claim authenticated issuance. Unknown demo IDs return404. All ten PDF QR codes were independently decoded and matched to their exact demo routes; all ten pages returned200 with the required disclaimer locally.

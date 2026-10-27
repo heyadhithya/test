@@ -416,15 +416,15 @@ const [previewLoading, setPreviewLoading] = useState(false);
   };
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden">
-      <main className="flex-1 flex flex-col items-center p-8 z-10 pt-24">
+    <div className="workspace-shell flex flex-col min-h-screen overflow-x-hidden">
+      <main className="flex-1 flex flex-col items-center px-4 py-6 sm:px-8 sm:py-10 z-10">
         <div className="glow-bg" style={{ top: "10%" }}></div>
 
         {/* Header Navbar Layer */}
         <div className="w-full max-w-6xl mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-20">
           <Link
             href="/"
-            className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-[var(--color-neon-text)] shrink-0 whitespace-nowrap w-fit"
+            className="text-lg font-semibold tracking-tight inline-flex items-center gap-2 text-[var(--color-neon-text)] shrink-0 whitespace-nowrap w-fit"
           >
             <Image
               src="/sairam-mark.svg"
@@ -433,7 +433,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
               height={32}
               className="rounded-lg object-contain shrink-0"
             />
-            SAIRAM CERTIFY
+            Sairam Certify
           </Link>
           <div className="flex w-full flex-wrap items-stretch gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end sm:gap-3">
             <Link
@@ -466,35 +466,38 @@ const [previewLoading, setPreviewLoading] = useState(false);
           </div>
         </div>
 
-        <div className="w-full max-w-6xl glass-card relative z-10">
-          <h1 className="text-3xl font-bold mb-2 text-center">
+        <div className="workspace-panel w-full max-w-6xl relative z-10">
+          <p className="workspace-eyebrow">Innovation Ecosystem Certifications</p>
+          <h1 className="workspace-title">
             Certificate Generator
           </h1>
-          <p className="text-[var(--color-neon-muted)] mb-8 text-center max-w-2xl mx-auto">
+          <p className="workspace-description">
             Upload your base PDF template and an Excel or CSV mapping file to
             prepare certificates in bulk. {canIssue ? "Saved certificates and verification QR are enabled by default." : "Guest downloads are unverified."}
           </p>
 
-          <div className="mb-6 flex flex-wrap justify-center gap-4 text-sm">
+          <details className="demo-kit"><summary>Try the demo kit <span>Template + 10 fictional participants</span></summary>
+          <div className="flex flex-wrap gap-4 text-sm pt-4">
             <a className="underline" href="/demo/sairam-participation-template.pdf" download>Demo certificate template (PDF)</a>
             <a className="underline" href="/demo/participants-10.xlsx" download>10 fictional participants (Excel)</a>
             <a className="underline" href="/demo/participants-10.csv" download>CSV</a>
             <a className="underline" href="/demo/sairam-demo-certificates-10.zip" download>10 generated demo PDFs (ZIP)</a>
-          </div>
+          </div></details>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-10 items-start">
             {/* LEFT COLUMN: Visualizer */}
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col space-y-6 lg:sticky lg:top-8">
+              <h2 className="workspace-section-title"><span>01</span> Template & participants</h2>
               <div className="grid grid-cols-2 gap-4">
                 {/* PDF Upload */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-[var(--color-neon-text)]">
                     Base Template
                   </label>
-                  <div className="relative group border-2 border-dashed border-[var(--color-neon-border)] rounded-xl p-6 text-center transition-colors hover:border-[var(--color-neon-primary)] cursor-pointer h-32 flex items-center justify-center">
+                  <div className="upload-control relative group border border-dashed border-[var(--color-neon-border)] rounded-xl p-4 text-center transition-colors hover:border-[var(--color-neon-primary)] cursor-pointer h-32 flex items-center justify-center">
                     <input
                       type="file"
-                      accept="application/pdf"
+                      aria-label="PDF template" accept="application/pdf"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={(e) => { const file = e.target.files?.[0] || null; setPdfFile(file); setPdfPreviewUrl(file ? URL.createObjectURL(file) : null); }}
                     />
@@ -518,10 +521,10 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   <label className="text-sm font-semibold text-[var(--color-neon-text)]">
                     Dataset
                   </label>
-                  <div className="relative group border-2 border-dashed border-[var(--color-neon-border)] rounded-xl p-6 text-center transition-colors hover:border-[var(--color-neon-secondary)] cursor-pointer h-32 flex items-center justify-center">
+                  <div className="upload-control relative group border border-dashed border-[var(--color-neon-border)] rounded-xl p-4 text-center transition-colors hover:border-[var(--color-neon-secondary)] cursor-pointer h-32 flex items-center justify-center">
                     <input
                       type="file"
-                      accept=".xlsx, .xls, .csv"
+                      aria-label="Participant spreadsheet" accept=".xlsx, .xls, .csv"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={(e) =>
                         setExcelFile(e.target.files?.[0] || null)
@@ -545,10 +548,10 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
               {/* PDF Visual Coordinate Assistant */}
               {pdfPreviewUrl ? (
-                <div className="flex-1 flex flex-col min-h-[500px]">
+                <div className="flex flex-col min-h-[320px] sm:min-h-[460px]">
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="text-lg font-semibold text-[var(--color-neon-primary)]">
-                      Visualizer
+                      Template preview
                     </h3>
                     <button
                       onClick={() => setIsFullscreen(true)}
@@ -564,7 +567,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
                   <div className="relative border-2 border-[var(--color-neon-border)] rounded-xl overflow-hidden bg-slate-50 flex flex-1 items-center justify-center p-4">
                     <div
-                      className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                      className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-white" : ""}`}
                       onClick={handlePdfClick}
                       onMouseMove={(e) => {
                         if (draggingTarget) {
@@ -616,7 +619,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                                 left: `${fieldParams.x}%`,
                                 top: `${fieldParams.y}%`,
                                 backgroundColor: markerColor,
-                                boxShadow: `0 0 10px ${markerColor}80`,
+                                boxShadow: "0 1px 3px rgba(23,53,74,.15)",
                               }}
                               title={`Drag to move ${key}`}
                             ></div>
@@ -627,9 +630,9 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-neon-border)] rounded-xl bg-slate-50 text-[var(--color-neon-muted)] p-8 text-center min-h-[500px]">
+                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-neon-border)] rounded-xl bg-slate-50 text-[var(--color-neon-muted)] p-8 text-center min-h-[280px] sm:min-h-[420px]">
                   <Crosshair className="w-12 h-12 mb-4 opacity-30" />
-                  <p>Upload a Base Template (PDF) to activate the Visualizer</p>
+                  <p className="font-medium text-slate-700">Your certificate starts here</p><p className="text-sm mt-2 max-w-xs">Upload a PDF template to preview it and position the participant details.</p>
                 </div>
               )}
             </div>
@@ -637,14 +640,14 @@ const [previewLoading, setPreviewLoading] = useState(false);
             {/* RIGHT COLUMN: Settings */}
             <div className="flex flex-col h-full space-y-6">
               {/* Advanced Configuration Options */}
-              <div className="flex-1 border border-[var(--color-neon-border)] rounded-xl bg-[var(--color-neon-surface)] p-6 space-y-6 flex flex-col">
+              <div className="settings-panel border border-[var(--color-neon-border)] rounded-xl bg-white p-4 sm:p-6 space-y-6 flex flex-col">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-[var(--color-neon-primary)]">
-                      Advanced Configuration
+                    <h3 className="workspace-section-title"><span>02</span>
+                      Layout & fields
                     </h3>
                     <p className="text-xs text-[var(--color-neon-muted)] mt-1">
-                      Fine-tune formatting & coordinates.
+                      Adjust typography and position each field on your template.
                     </p>
                   </div>
                 </div>
@@ -653,7 +656,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   {/* Name settings */}
                   <div className="pt-4 first:pt-0">
                     <div className="flex items-center justify-between mb-3">
-                      <div
+                      <button type="button" role="switch" aria-label="Recipient Name" aria-checked={config.name.enabled}
                         className="flex items-center space-x-3 cursor-pointer group"
                         onClick={() =>
                           handleConfigChange(
@@ -669,9 +672,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             backgroundColor: config.name.enabled
                               ? MARKER_COLORS.name
                               : "var(--color-neon-surface-hover)",
-                            boxShadow: config.name.enabled
-                              ? `0 0 8px ${MARKER_COLORS.name}99`
-                              : "none",
+                            boxShadow: "none",
                           }}
                         ></span>
                         <div
@@ -696,7 +697,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                         >
                           Recipient Name
                         </span>
-                      </div>
+                      </button>
                       {config.name.enabled && (
                         <button
                           onClick={() =>
@@ -781,7 +782,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   {/* Course settings */}
                   <div className="pt-4">
                     <div className="flex items-center justify-between mb-3">
-                      <div
+                      <button type="button" role="switch" aria-label="Course Name" aria-checked={config.course.enabled}
                         className="flex items-center space-x-3 cursor-pointer group"
                         onClick={() =>
                           handleConfigChange(
@@ -797,9 +798,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             backgroundColor: config.course.enabled
                               ? MARKER_COLORS.course
                               : "var(--color-neon-surface-hover)",
-                            boxShadow: config.course.enabled
-                              ? `0 0 8px ${MARKER_COLORS.course}99`
-                              : "none",
+                            boxShadow: "none",
                           }}
                         ></span>
                         <div
@@ -824,7 +823,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                         >
                           Course Name
                         </span>
-                      </div>
+                      </button>
                       {config.course.enabled && (
                         <button
                           onClick={() =>
@@ -909,7 +908,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   {/* Issue Date settings */}
                   <div className="pt-4">
                     <div className="flex items-center justify-between mb-3">
-                      <div
+                      <button type="button" role="switch" aria-label="Issue Date" aria-checked={config.issueDate.enabled}
                         className="flex items-center space-x-3 cursor-pointer group"
                         onClick={() =>
                           handleConfigChange(
@@ -925,9 +924,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             backgroundColor: config.issueDate.enabled
                               ? MARKER_COLORS.issueDate
                               : "var(--color-neon-surface-hover)",
-                            boxShadow: config.issueDate.enabled
-                              ? `0 0 8px ${MARKER_COLORS.issueDate}99`
-                              : "none",
+                            boxShadow: "none",
                           }}
                         ></span>
                         <div
@@ -952,7 +949,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                         >
                           Issue Date
                         </span>
-                      </div>
+                      </button>
                       {config.issueDate.enabled && (
                         <button
                           onClick={() =>
@@ -1052,9 +1049,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                             backgroundColor: config.qrCode.enabled
                               ? MARKER_COLORS.qrCode
                               : "var(--color-neon-surface-hover)",
-                            boxShadow: config.qrCode.enabled
-                              ? `0 0 8px ${MARKER_COLORS.qrCode}99`
-                              : "none",
+                            boxShadow: "none",
                           }}
                         ></span>
                         <div
@@ -1279,14 +1274,14 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
               {/* Status Feedback */}
               {error && (
-                <div className="mt-4 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-start text-red-800">
+                <div role="alert" className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start text-red-800">
                   <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5 text-red-400" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}
 
               {successCount !== null && (
-                <div className="mt-4 p-4 rounded-xl bg-[#00e599]/10 border border-[#00e599]/30 flex items-start text-emerald-800">
+                <div role="status" className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start text-emerald-800">
                   <CheckCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-sm">Success!</p>
@@ -1308,7 +1303,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
         {/* Generated Certificates List view */}
         {certificates.length > 0 && (
-          <div className="w-full max-w-4xl mt-12 mb-20 relative z-10 animate-in fade-in slide-in-from-bottom-5 duration-500">
+          <div className="w-full max-w-4xl mt-12 mb-20 relative z-10 ">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
               <CheckCircle className="w-6 h-6 mr-3 text-[var(--color-neon-primary)]" />
               Generated Documents
@@ -1327,7 +1322,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                         {cert.course}
                       </p>
                     </div>
-                    <span className="text-xs font-mono text-[var(--color-neon-primary)] bg-[#00e599]/10 px-2 py-1 rounded">
+                    <span className="text-xs font-mono text-[var(--color-neon-primary)] bg-slate-100 px-2 py-1 rounded">
                       {cert.certificateId}
                     </span>
                   </div>
@@ -1358,7 +1353,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
               <button
                 onClick={handleDownloadZip}
                 disabled={isZipping}
-                className="bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] py-3 px-8 rounded-xl flex items-center justify-center gap-3 group transition-all duration-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,153,0.3)] hover:shadow-[0_0_30px_rgba(0,229,153,0.5)]"
+                className="bg-[var(--color-neon-primary)] text-white font-semibold hover:bg-[#23465f] py-3 px-8 rounded-xl flex items-center justify-center gap-3 group transition-all duration-300 disabled:opacity-50 "
               >
                 {isZipping ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -1404,7 +1399,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
             <div className="flex-1 overflow-auto flex items-center justify-center p-8">
               <div
-                className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-white" : ""}`}
                 onClick={handlePdfClick}
                 onMouseMove={(e) => {
                   if (draggingTarget) {

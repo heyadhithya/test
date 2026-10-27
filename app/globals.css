@@ -779,3 +779,48 @@ h1.text-white, h2.text-white, h3.text-white, h4.text-white,
 input.text-white, textarea.text-white { color: var(--color-neon-text); }
 
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #315b78; outline-offset: 3px; }
+
+/* Restrained workspace system: existing controls, no added fonts or animation. */
+.workspace-shell { background: #fff; }
+.workspace-panel { border-top: 1px solid #dce3e8; padding: 32px 0 0; }
+.workspace-eyebrow { color: #576775; font-size: 11px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 12px; }
+.workspace-title { font-size: clamp(28px, 3vw, 40px); font-weight: 600; letter-spacing: -.035em; line-height: 1.15; margin-bottom: 14px; }
+.workspace-description { max-width: 700px; color: #506270; font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+.workspace-section-title { display:flex; align-items:center; gap:12px; font-size:15px; font-weight:600; }
+.workspace-section-title span { color:#657581; font-size:11px; letter-spacing:.08em; border:1px solid #dce3e8; padding:5px 7px; border-radius:6px; }
+.demo-kit { border:1px solid #dce3e8; border-radius:10px; padding:14px 18px; margin-bottom:32px; background:#fff; }
+.demo-kit summary { font-size:14px; font-weight:600; cursor:pointer; min-height:24px; }
+.demo-kit summary span { margin-left:14px; font-size:12px; font-weight:400; color:#576775; }
+.demo-kit a { text-underline-offset:4px; padding:6px 0; color:#24485f; }
+.upload-control { background:#fff; }
+.upload-control:hover, .upload-control:focus-within { background:#f6f8fa; border-color:#315b78; }
+.upload-control:focus-within { outline:2px solid #315b78; outline-offset:3px; }
+.workspace-shell button:not(:disabled), .workspace-shell select, .workspace-shell input:not([type=color]):not([type=checkbox]):not([type=file]) { min-height:44px; }
+.workspace-shell .text-xs { font-size:12px; line-height:1.5; }
+.workspace-shell button[role=switch] { text-align:left; }
+.workspace-shell .settings-panel { box-shadow:none; }
+.btn-primary, .btn-secondary { border-radius:10px; min-height:44px; letter-spacing:0; transition:background-color .15s, border-color .15s; }
+.btn-primary:hover, .btn-secondary:hover { transform:none; }
+.btn-primary:disabled, .btn-secondary:disabled { background:#e8edf1; color:#5c6a76; opacity:1; box-shadow:none; border-color:#dce3e8; }
+.metric-card::before { display:none; }
+.metric-card:hover { transform:none; box-shadow:none; border-color:#a9bac7; }
+.glass-card, .glass-card:hover { border-color:#dce3e8; box-shadow:0 2px 8px rgba(23,53,74,.025); }
+.auth-shell { min-height:100vh; display:grid; place-items:center; padding:32px 20px; background:#fff; }
+.auth-card { width:100%; max-width:440px; border:1px solid #dce3e8; border-radius:16px; padding:36px; box-shadow:0 8px 32px rgba(23,53,74,.035); }
+.auth-card h1 { letter-spacing:-.035em; font-weight:600; }
+.auth-card label { font-size:13px; font-weight:600; }
+.auth-card input { border:1px solid #c5cfd6; border-radius:8px; min-height:46px; padding:10px 12px; background:#fff; color:#17354a; }
+.auth-card p { line-height:1.65; color:#506270; }
+.auth-card [role=status] { padding:12px; background:#f4f7f9; border-radius:8px; color:#17354a; }
+.verification-shell { max-width:680px; margin:auto; padding:48px 24px 80px; }
+.verification-card { margin-top:40px; border:1px solid #dce3e8; border-radius:16px; padding:32px; }
+.verification-card h1 { font-size:30px; line-height:1.2; letter-spacing:-.035em; font-weight:600; margin:18px 0; }
+.verification-card p { font-size:15px; line-height:1.7; color:#506270; }
+.verification-card dl { margin-top:28px; border-top:1px solid #dce3e8; }
+.verification-card dl div { padding:16px 0; border-bottom:1px solid #e8edf1; }
+.verification-card dt { font-size:12px; color:#506270; margin-bottom:6px; }
+.verification-card dd { font-size:16px; font-weight:500; overflow-wrap:anywhere; }
+.verification-state { display:inline-flex; font-size:12px; font-weight:600; padding:6px 10px; border-radius:6px; background:#f4f7f9; color:#315b78; }
+@media(max-width:640px) { .workspace-panel {padding-top:24px;} .demo-kit summary span {display:block;margin:5px 0 0 18px;} .auth-card {padding:26px;} .verification-card {padding:24px;} }
+
+.workspace-shell button[role=switch]:focus-visible { outline:2px solid #315b78; outline-offset:-2px; border-radius:6px; }
