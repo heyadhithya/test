@@ -1,15 +1,12 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
+// The Vercel/Supabase integration supplies POSTGRES_PRISMA_URL. Prefer an explicitly
+// configured DATABASE_URL, but do not duplicate credentials into source or logs.
 const prismaClientSingleton = () => {
-  return new PrismaClient()
-}
-
-declare const globalThis: {
-  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
-} & typeof global;
-
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
-
-export default prisma
-
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
+  const url = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
+  return new PrismaClient(url ? { datasources: { db: { url } } } : undefined);
+};
+const globalForPrisma = globalThis as unknown as { prismaGlobal?: PrismaClient };
+const prisma = globalForPrisma.prismaGlobal ?? prismaClientSingleton();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prismaGlobal = prisma;
+export default prisma;

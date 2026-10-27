@@ -10,6 +10,7 @@ import { generateCertificate } from "@/lib/generateCertificate";
 import prisma from "@/lib/prisma";
 import { uploadToS3 } from "@/lib/s3";
 import { isApprovedIssuer } from "@/lib/security";
+import { pilotReady } from "@/lib/pilot-auth";
 import { issueBatch } from "@/lib/verified-issuance";
 import crypto from "crypto";
 import { getServerSession } from "next-auth";
@@ -239,7 +240,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (saveToDb && !previewOnly) {
-      if (!isApprovedIssuer(session?.user?.id, process.env.ISSUER_USER_IDS)) return NextResponse.json({error:"Issuer access required"},{status:403});
+      const pilotIssuer = session?.pilotAccess === true && pilotReady() && process.env.PILOT_ISSUANCE_ENABLED === 'true';
+      if (!isApprovedIssuer(session?.user?.id, process.env.ISSUER_USER_IDS) && !pilotIssuer) return NextResponse.json({error:"Issuer access required"},{status:403});
       const limit = validateRowCount(rows.length);
       if (limit) return NextResponse.json({error:limit.message},{status:limit.status});
       return NextResponse.json(await issueBatch(session!.user.id,templateBuffer,datasetBuffer,settings,rows));

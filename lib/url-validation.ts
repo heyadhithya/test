@@ -1,4 +1,5 @@
 import { resolve4, resolve6 } from "dns/promises";
+import { isIP } from 'node:net';
 
 const BLOCKED_HOSTNAMES = new Set([
     "localhost",
@@ -71,7 +72,7 @@ async function validateUrl(
         };
     }
 
-    if (hostname === "0.0.0.0" || isPrivateIPv4(hostname)) {
+    if (hostname === "0.0.0.0" || (isIP(hostname) === 4 && isPrivateIPv4(hostname))) {
         return {
             valid: false,
             error: "URLs pointing to private or reserved IP addresses are not allowed.",
