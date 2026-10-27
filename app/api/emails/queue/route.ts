@@ -84,7 +84,9 @@ export async function POST(req: NextRequest) {
         // Update certificates status to "pending" if they are queued for email
         await prisma.certificate.updateMany({
             where: {
-                certificateId: { in: selectedCertificateIds },
+                certificateId: { in: certificates.map((cert) => cert.certificateId) },
+                userId: session.user.id,
+                batchId,
                 recipientEmail: { not: null },
             },
             data: {
