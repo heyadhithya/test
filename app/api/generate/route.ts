@@ -1,19 +1,20 @@
-import {issueBatch} from "@/lib/verified-issuance";
-import { NextRequest, NextResponse } from "next/server";
-import * as xlsx from "xlsx";
-import crypto from "crypto";
-import prisma from "@/lib/prisma";
-import { generateCertificate } from "@/lib/generateCertificate";
-import { uploadToS3 } from "@/lib/s3";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { generateBatchId, generateCertificateId } from "@/lib/certificateIds";
 import { sendCertificateEmail } from "@/lib/certificateEmail";
+import { generateBatchId,generateCertificateId } from "@/lib/certificateIds";
 import {
-  validateTemplateFile,
-  validateDatasetFile,
-  validateRowCount,
+validateDatasetFile,
+validateRowCount,
+validateTemplateFile,
 } from "@/lib/file-validation";
+import { generateCertificate } from "@/lib/generateCertificate";
+import prisma from "@/lib/prisma";
+import { uploadToS3 } from "@/lib/s3";
+import { isApprovedIssuer } from "@/lib/security";
+import { issueBatch } from "@/lib/verified-issuance";
+import crypto from "crypto";
+import { getServerSession } from "next-auth";
+import { NextRequest,NextResponse } from "next/server";
+import * as xlsx from "xlsx";
 
 
 export const dynamic = "force-dynamic";
@@ -63,7 +64,6 @@ export async function POST(req: NextRequest) {
 
     const templateFile = formData.get("template") as File | null;
     const datasetFile = formData.get("dataset") as File | null;
-    const eventIdString = formData.get("eventId") as string | null;
     const sendEmails = formData.get("sendEmails") === "true";
     const previewOnly = formData.get("previewOnly") === "true";
     const emailTemplate =
@@ -138,15 +138,6 @@ export async function POST(req: NextRequest) {
       }
       settings = parsed as Settings;
     }
-
-    const canvasWidth = 794;
-    const canvasHeight = 562;
-
-    const toPercentX = (x?: number) =>
-      typeof x === "number" ? (x / canvasWidth) * 100 : 50;
-
-    const toPercentY = (y?: number) =>
-      typeof y === "number" ? (y / canvasHeight) * 100 : 50;
 
     const saveToDb = formData.get("saveToDb") !== "false";
     const batchId = generateBatchId();
@@ -248,17 +239,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (saveToDb && !previewOnly) {
-      const allowed = (process.env.ISSUER_USER_IDS || "").split(",").map(e=>e.trim());
-      if (!session?.user?.id || !allowed.includes(session.user.id)) return NextResponse.json({error:"Issuer access required"},{status:403});
+      if (!isApprovedIssuer(session?.user?.id, process.env.ISSUER_USER_IDS)) return NextResponse.json({error:"Issuer access required"},{status:403});
       const limit = validateRowCount(rows.length);
       if (limit) return NextResponse.json({error:limit.message},{status:limit.status});
-      return NextResponse.json(await issueBatch(session.user.id,templateBuffer,datasetBuffer,settings,rows));
+      return NextResponse.json(await issueBatch(session!.user.id,templateBuffer,datasetBuffer,settings,rows));
     }
 
     // ── Preview-only: generate a single certificate from row[0] in-memory ──
     if (previewOnly) {
-      const protocol = req.headers.get("x-forwarded-proto") || "http";
-      const host = req.headers.get("host");
+
       const dynamicBaseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
       const normalizedRow: Record<string, unknown> = {};
@@ -325,7 +314,7 @@ export async function POST(req: NextRequest) {
 
     // Determine base URL dynamically so the QR code works in production
     const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const host = req.headers.get("host"); // e.g. "vuraweb.vercel.app"
+
     const dynamicBaseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Prepare S3 URL for the original template (only if saving to DB)

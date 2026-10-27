@@ -13,7 +13,8 @@ export async function issueBatch(userId:string, template:ArrayBuffer, dataset:Ar
   const record:IssuanceRecord={certificateId:issuanceId(userId,digest,index,secret),userId,name:String(normalized.name||''),course:String(normalized.course||''),issueDate:String(normalized.issuedate||''),revoked:false,pdfUrl:'',status:'pending'};
   const result=await issueCertificate(record,{
    reserve:async data=>{
-    const found=await prisma.certificate.upsert({where:{certificateId:data.certificateId},update:{},create:{...data,templateUrl:'',batchId:digest}});
+    await prisma.certificate.createMany({data:[{...data,templateUrl:'',batchId:digest}],skipDuplicates:true});
+    const found=await prisma.certificate.findUniqueOrThrow({where:{certificateId:data.certificateId}});
     return {...found,userId:found.userId!};
    },
    complete:async(id,key)=>{

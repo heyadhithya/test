@@ -84,7 +84,7 @@ export async function POST(req: Request) {
                 email,
                 resetUrl
             });
-        } catch (mailError: any) {
+        } catch (mailError: unknown) {
             // It might fail if no valid Resend key is configured. We'll still allow the token to be set, 
             // but we can log the error or print the url for dev purposes.
             console.error("Failed to send email. If you are in dev, here is the reset URL:", resetUrl);

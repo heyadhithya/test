@@ -1,9 +1,8 @@
-import Link from "next/link"
-import { getServerSession } from "next-auth"
+import TemplateCard from "@/components/TemplateCard"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
-import TemplateCard from "@/components/TemplateCard"
 
 export default async function TemplatesPage() {
   let session = null

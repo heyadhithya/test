@@ -2,23 +2,28 @@
 > sairam-ecosystem-certifications@0.1.0 test
 > node --test tests/*.test.mjs
 
-✔ guest PDF generation omits QR assets and handles absent settings (261.419355ms)
-✔ legacy admin fails closed (4.69609ms)
-✔ limits remain upstream defaults (7.640154ms)
-✔ generation forces guest QR off and uses configured origin (0.37742ms)
-✔ no known admin master password or forced upstream auth origin (0.394996ms)
-✔ persistent issuance retries preserve ID and never verify before upload (10.659633ms)
-✔ private storage rejects public buckets and recovers exact duplicate uploads (16.905703ms)
-✔ stable PDF bytes support upload retry comparison (87.765765ms)
-✔ request digest frames input and binds origin and render version (7.728939ms)
-ℹ tests 9
+✔ guest PDF generation omits QR assets and handles absent settings (255.443973ms)
+✔ legacy admin fails closed (4.020821ms)
+✔ limits remain upstream defaults (8.490898ms)
+✔ generation forces guest QR off and uses configured origin (0.518861ms)
+✔ no known admin master password or forced upstream auth origin (0.271608ms)
+✔ persistent issuance retries preserve ID and never verify before upload (8.693622ms)
+✔ private storage rejects public buckets and recovers exact duplicate uploads (12.304736ms)
+✔ stable PDF bytes support upload retry comparison (84.924328ms)
+✔ request digest frames input and binds origin and render version (5.54252ms)
+✔ redirects reject lookalike origins, protocol-relative attackers and script URLs (3.420477ms)
+✔ private PDF handler enforces configured state, auth and owner query (6.357537ms)
+✔ registry does not verify pending, missing-PDF or revoked credentials and omits private fields (3.969874ms)
+✔ concurrent issuance converges; DB failure after upload retries same object (5.496061ms)
+✔ Prisma batch adapter uses conflict-safe reservation and exposes only owner download URLs (15.70951ms)
+ℹ tests 14
 ℹ suites 0
-ℹ pass 9
+ℹ pass 14
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 675.391667
+ℹ duration_ms 730.29107
 npm notice
 npm notice New major version of npm available! 11.9.0 -> 12.2.1
 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1

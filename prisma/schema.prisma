@@ -33,6 +33,7 @@ model Certificate {
 
   emailQueue    EmailQueue?
 
+  @@index([userId, createdAt])
   @@index([batchId])
   @@index([status])
 }

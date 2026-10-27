@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { requestAdminOtp, verifyAdminOtp } from "@/app/admin/actions";
-import { Lock, Loader2, AlertCircle, Mail, ArrowLeft, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import { requestAdminOtp,verifyAdminOtp } from "@/app/admin/actions";
+import { AlertCircle,ArrowLeft,Loader2,Lock,Mail } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Step = "credentials" | "otp";
 

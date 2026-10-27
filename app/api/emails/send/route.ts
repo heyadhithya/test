@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
                 });
 
                 results.push({ id: entry.id, status: "sent" });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 const errorMsg = err instanceof Error ? err.message : String(err);
                 console.error(`Failed to send email for queue ID ${entry.id}:`, err);
 
@@ -129,8 +129,8 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, results });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Failed to process email queue:", error);
-        return NextResponse.json({ error: error.message || "Failed to process email queue" }, { status: 500 });
+        return NextResponse.json({ error: (error instanceof Error ? error.message : "Request failed") || "Failed to process email queue" }, { status: 500 });
     }
 }

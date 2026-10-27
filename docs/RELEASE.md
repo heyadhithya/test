@@ -1,32 +1,29 @@
 # Release status and exact gates
 
-No fork retry, hosting creation, credential creation, migration, paid provisioning or email send occurred. All retired resources are preserved. This branch is NOT production-ready: inherited lint errors, dependency advisories, and live integration remain blockers.
+Dependency audit, full lint, typecheck, production build and fourteen regression tests pass. This is a developer-ready demonstration, not a completed verified-issuance production release. No retired resources were modified. No paid activation, OAuth grant, email send or fork retry occurred.
 
-## Targets
+## Approved isolated setup (2026-10-27)
 
-- Confirmed GitHub target `heyadhithya/test`: public fork, parent/source `omn7/Vura`, push permission true, main exactly `b52339176d97f53f305bb686bb3f76dd853127d1`. User supplied this target; no repository rename or fork retry. Changes are intended for a review branch, not a release.
-- Proposed Vercel project `sairam-ecosystem-certifications`, team `team_FxxI6fQtxqPMbEDnkfdnwoBt` (`adithya-ss-projects-3d3e5750`): no existing match.
-- Supabase: both connected accounts list only retired Framilton. Do not use it. A separate project named `sairam-ecosystem-certifications` and private bucket `certificates-private` are proposed, not provisioned. Parent handles pricing; no purchase authorized.
+- GitHub `heyadhithya/test` is the user-selected public fork of `omn7/Vura`; work is published on `rebrand/sairam-ecosystem`, preserving main and upstream MIT attribution.
+- New Vercel project `sairam-ecosystem-certifications`: `prj_uVCEbVhur5ATVwmfTbxSFKz7N1sD`, team `team_FxxI6fQtxqPMbEDnkfdnwoBt`. The existing `sairam-certify` project is unrelated and preserved.
+- Supabase `vvucjlhjrbsxjtdcflwf`, same project name, approved organization `vercel_icfg_qplYVHnMC1pGiRrOOgNlaDHf`, Mumbai `ap-south-1`. Parent obtained a zero monthly provisioning quote and explicit setup approval. Before migration, public relations/functions, auth users, buckets, objects and migration history were empty.
+- Applied `docs/fresh-schema.sql` as `sairam_initial_isolated_schema`: ten tables, indexes/FKs, RLS on every application table, anon/authenticated/PUBLIC table grants revoked. Created private PDF-only `certificates-private` bucket. Security advisor reports ten INFO notices for RLS without policies, intentional for server-only access. No client table policies should be added merely to silence these notices.
+- The inherited Prisma initial migration is behind the schema. Reconcile/baseline migration history before any future `prisma migrate deploy`; builds only generate the client and do not migrate.
 
-## Approval/configuration required
+## Remaining secure configuration
 
-1. Target fork verified. Publish review branch without changing main; production release remains blocked below.
-2. Approve a fresh Supabase project/account/region/plan. No existing project credentials or tables may be reused. Confirm new project reference and private bucket metadata. Test anonymous object denial.
-3. Approve schema deployment from existing Prisma schema into that fresh database only, plus RLS/grant hardening. The application uses Prisma server-side and NextAuth, not Supabase client Auth. Apply reviewed SQL that enables RLS and revokes anon/authenticated access on application tables; do not expose raw certificate/user tables. No migration was applied here.
-4. Approve fresh secrets and configure ONLY the new Vercel project:
-   - `DATABASE_URL`: fresh Postgres pooled server connection, deployment-only.
-   - `NEXTAUTH_URL`: exact final HTTPS origin; do not change casually because QR links are durable.
-   - `NEXTAUTH_SECRET`: fresh auth secret.
-   - `ISSUANCE_ID_SECRET`: separate stable >=32-character secret; preserve across auth-secret rotations. Loss/rotation changes retry identities.
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server-only), `SUPABASE_PRIVATE_BUCKET`.
-   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` if approved Google OAuth is used; redirect `/api/auth/callback/google` at the exact new origin. Alternatively provision approved credential users separately, never public self-registration.
-   - `ISSUER_USER_IDS`: explicit immutable approved database user IDs. Email text alone never authorizes issuance.
-   - `VERIFIED_ISSUANCE_ENABLED=true` only after release/integration checks. Leave `PERSISTENCE_ENABLED` unset; legacy routes are out of release scope.
-5. Email remains disabled. If later needed, separately approve sender domain/DNS/provider credentials, delivery queue and suppression policy; no SMTP insecure TLS/mock success is permitted.
+The connected Supabase tools do not provide a secure server-key/database-password transfer to Vercel. No secrets were retrieved, generated, printed or stored. The owner must use the dashboards directly; do not send values in chat or commit them.
+
+1. Open the new Supabase project: https://supabase.com/dashboard/project/vvucjlhjrbsxjtdcflwf . In Connect, obtain the transaction-pooler Prisma connection string with this project's password. Use the recommended Prisma pooling parameters. In API settings, obtain this project's server-only legacy service-role JWT for the current storage adapter, never an anon/publishable key.
+2. Open the new Vercel project's Settings → Environment Variables. Add Production-only sensitive variables `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, fresh independent random `NEXTAUTH_SECRET` and stable `ISSUANCE_ID_SECRET` (at least 32 characters). Never use `NEXT_PUBLIC` prefixes. Do not copy credentials from another project.
+3. Set `SUPABASE_URL=https://vvucjlhjrbsxjtdcflwf.supabase.co`, `SUPABASE_PRIVATE_BUCKET=certificates-private`, and `NEXTAUTH_URL` to the confirmed final HTTPS origin. QR links depend on this durable origin; don't change it casually.
+4. Provision the approved institutional issuer identity and set its immutable database ID in `ISSUER_USER_IDS`. Native upstream NextAuth credential login requires an intentionally provisioned hashed-password user; public registration is disabled. No issuer identity was supplied or created. Google OAuth is optional and needs separate owner grant/configuration; no OAuth grant has been made.
+5. Leave `VERIFIED_ISSUANCE_ENABLED` unset until the live checks below pass. Leave `PERSISTENCE_ENABLED` unset: unrelated legacy routes remain blocked. Enable verified issuance only on the reviewed release after real integration testing.
+6. Email is disabled. Sender domain/DNS/provider credentials and delivery policy remain a separate approval/setup.
 
 ## Verification required before release
 
-- Resolve dependency audit findings and inherited lint errors; do not suppress them to claim green checks.
+- Dependency audit and lint are now clean; repeat all checks on the actual release commit. See `DEPENDENCIES.md`.
 - Exercise real isolated Postgres + Storage with synthetic data: issue, scan/decode QR, lookup, issuer download, unauthenticated/other-user denial, revocation, upload-success/DB-failure recovery, duplicate concurrent requests, private bucket enforcement and storage cleanup. Current unit tests use adapters/mocks; they do not prove real integration.
 - Confirm private storage duplicate error shape against deployed API and exact-byte retry behavior with real PDF fixtures. Blob upload occurs before activation; abandoned pending rows/objects need a reviewed cleanup job.
 - Original upstream 10 MB template, 5 MB spreadsheet, 5,000-row validation limits remain unchanged. These are parser limits, NOT safe Vercel request/batch capacity. Whole multipart uploads may exceed platform request limits; synchronous generation requires timing/memory measurements and likely smaller operational batches/direct uploads or a queue before scale claims.
@@ -43,6 +40,11 @@ Proposed retention for owner approval: retain minimal QR registry records while 
 
 ## Final local checks
 
-Guest browser flow passed with two synthetic rows (desktop and mobile). Nine unit/regression tests passed. TypeScript and production build passed on the prepared source; evidence logs included. Full lint still reports 155 errors / 75 warnings, largely inherited typing/React issues. npm audit reports 44 advisories (5 critical, 36 high, 2 moderate, 1 low). These prevent production approval; no attempt was made to disguise failures or claim 10k/month capacity.
+Guest browser flow passed on the production Next server with two synthetic rows (desktop and mobile). Fourteen unit/regression tests pass, including handler authorization/privacy, redirects, registry states, duplicate uploads, database-completion failure recovery, revocation during upload, and mock concurrent adapter calls. TypeScript, full lint (zero errors/warnings), production build and full npm audit (zero advisories) pass. Evidence logs are included. These tests do not establish live Postgres/Supabase behavior or 10k/month capacity.
 
 The API proxy also blocks legacy routes regardless of the legacy environment switch. Only generation, registry lookup, private downloads and NextAuth protocol endpoints are routed. Do not enable unrelated legacy functionality without separate remediation.
+
+
+## Resource preservation
+
+The already-existing Vercel `sairam-certify` project is not this target and must not be overwritten. The new Vercel name is `sairam-ecosystem-certifications`. Parent handles any old-hosting retirement separately; this code task has changed no old infrastructure.

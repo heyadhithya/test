@@ -48,8 +48,8 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
             setTimeout(() => {
                 router.push("/login");
             }, 3000);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Request failed");
         } finally {
             setLoading(false);
         }

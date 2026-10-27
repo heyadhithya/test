@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
         }
 
         return NextResponse.json({ valid: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("Verify compose session error:", err);
-        return NextResponse.json({ valid: false, error: err.message || "Failed to verify session" }, { status: 500 });
+        return NextResponse.json({ valid: false, error: (err instanceof Error ? err.message : "Request failed") || "Failed to verify session" }, { status: 500 });
     }
 }

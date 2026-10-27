@@ -1,6 +1,6 @@
-import React, { useState, Component, ErrorInfo, ReactNode } from 'react';
+import { Component,ErrorInfo,ReactNode,useState } from 'react';
 
-import { Document, Page, pdfjs } from 'react-pdf';
+import { Document,Page,pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -19,7 +19,7 @@ class PdfErrorBoundary extends Component<{ children: ReactNode, fallback: ReactN
         this.state = { hasError: false };
     }
 
-    static getDerivedStateFromError(_: Error) {
+    static getDerivedStateFromError() {
         return { hasError: true };
     }
 

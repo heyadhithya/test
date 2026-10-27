@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Activity, Mail, Cpu, AlertTriangle, Key, Terminal, Code, CheckCircle, Clock, XCircle, FileText } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle,Clock,Code,FileText,Mail,Terminal,XCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

@@ -1,28 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import * as xlsx from "xlsx";
+import JSZip from "jszip";
 import {
-  FileUp,
-  FileSpreadsheet,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  Crosshair,
-  LayoutDashboard,
-  LogOut,
-  Home,
-  Github,
-  X,
-  Linkedin,
-  Mail,
-  Download,
+AlertCircle,
+CheckCircle,
+Crosshair,
+Download,
+FileSpreadsheet,
+FileUp,
+Home,
+LayoutDashboard,
+Loader2,
+LogOut,
+X
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
-import JSZip from "jszip";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
+import * as xlsx from "xlsx";
 
 import dynamic from "next/dynamic";
 
@@ -101,18 +98,6 @@ export default function Dashboard() {
 const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
 const [previewLoading, setPreviewLoading] = useState(false);
 
-  useEffect(() => {
-    if (status === "authenticated" && saveToDb === false) {
-      setSaveToDb(true);
-    } else if (status === "unauthenticated") {
-      setSaveToDb(false);
-      setConfig((prev) => ({
-        ...prev,
-        qrCode: { ...prev.qrCode, enabled: false },
-      }));
-    }
-  }, [status]);
-
   type Certificate = {
     certificateId: string;
     name: string;
@@ -166,7 +151,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
       hex: "#000000",
       fontStyle: "normal",
     },
-    qrCode: { enabled: true, x: 80, y: 85, scale: 0.5 },
+    qrCode: { enabled: false, x: 80, y: 85, scale: 0.5 },
   });
 
   const handleConfigChange = (
@@ -181,15 +166,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
   };
 
   // --- Coordinate Visualizer Logic ---
-  useEffect(() => {
-    if (pdfFile) {
-      const objectUrl = URL.createObjectURL(pdfFile);
-      setPdfPreviewUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else {
-      setPdfPreviewUrl(null);
-    }
-  }, [pdfFile]);
+  useEffect(() => () => { if (pdfPreviewUrl) URL.revokeObjectURL(pdfPreviewUrl); }, [pdfPreviewUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -508,7 +485,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                       type="file"
                       accept="application/pdf"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                      onChange={(e) => { const file = e.target.files?.[0] || null; setPdfFile(file); setPdfPreviewUrl(file ? URL.createObjectURL(file) : null); }}
                     />
                     <div className="flex flex-col items-center pointer-events-none">
                       <FileUp className="w-6 h-6 mb-2 text-[var(--color-neon-primary)]" />

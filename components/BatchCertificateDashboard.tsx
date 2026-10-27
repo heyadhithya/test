@@ -75,9 +75,6 @@ export default function BatchCertificateDashboard({ batchId }: Props) {
 
     const deferredSearch = useDeferredValue(search);
 
-    useEffect(() => {
-        setPage(1);
-    }, [status, deferredSearch]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -211,7 +208,7 @@ export default function BatchCertificateDashboard({ batchId }: Props) {
                         <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-neon-muted)]" />
                         <input
                             value={search}
-                            onChange={(event) => setSearch(event.target.value)}
+                            onChange={(event) => { setPage(1); setSearch(event.target.value); }}
                             placeholder="Search participant name, email, or certificate ID"
                             className="w-full rounded-xl border border-[var(--color-neon-border)] bg-[var(--color-neon-surface)] pl-10 pr-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-[var(--color-neon-muted)] focus:border-[var(--color-neon-primary)]"
                         />
@@ -221,7 +218,7 @@ export default function BatchCertificateDashboard({ batchId }: Props) {
                         <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-neon-muted)]" />
                         <select
                             value={status}
-                            onChange={(event) => setStatus(event.target.value)}
+                            onChange={(event) => { setPage(1); setStatus(event.target.value); }}
                             className="w-full appearance-none rounded-xl border border-[var(--color-neon-border)] bg-[var(--color-neon-surface)] pl-10 pr-4 py-3 text-sm text-white outline-none transition-colors focus:border-[var(--color-neon-primary)]"
                         >
                             {STATUS_OPTIONS.map((option) => (

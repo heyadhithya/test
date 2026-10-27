@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -31,12 +33,12 @@ export default function AdminSidebar({ user }: Props) {
         router.refresh();
     };
 
-    const SidebarContent = () => (
+    const sidebarContent = (
         <div className="flex flex-col h-full bg-[#080808]">
             {/* Logo */}
             <div className="px-6 py-5 border-b border-[var(--color-neon-border)] flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <img src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
+                    <Image unoptimized width={40} height={40} src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
                     <div className="flex flex-col">
                         <span className="text-lg font-black tracking-widest uppercase text-white leading-none">SAIRAM CERTIFY</span>
                         <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest leading-none mt-1">ADMIN</span>
@@ -48,7 +50,7 @@ export default function AdminSidebar({ user }: Props) {
             <div className="px-4 py-4 border-b border-[var(--color-neon-border)]">
                 <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-red-950/10 border border-red-500/20">
                     {user.image ? (
-                        <img src={user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-red-500/50 shrink-0 object-cover" />
+                        <Image unoptimized width={40} height={40} src={user.image} alt="avatar" className="w-9 h-9 rounded-full border-2 border-red-500/50 shrink-0 object-cover" />
                     ) : (
                         <div className="w-9 h-9 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
                             <User className="w-4 h-4 text-red-400" />
@@ -109,7 +111,7 @@ export default function AdminSidebar({ user }: Props) {
         <>
             {/* Desktop sidebar */}
             <aside className="hidden md:flex w-64 shrink-0 flex-col h-screen sticky top-0 bg-[#080808] border-r border-[var(--color-neon-border)] z-30">
-                <SidebarContent />
+                {sidebarContent}
             </aside>
 
             {/* Mobile: hamburger button */}
@@ -128,7 +130,7 @@ export default function AdminSidebar({ user }: Props) {
                         <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[var(--color-neon-muted)] hover:text-white z-50">
                             <X className="w-5 h-5" />
                         </button>
-                        <SidebarContent />
+                        {sidebarContent}
                     </aside>
                 </div>
             )}

@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { User, Mail, Calendar } from "lucide-react";
+import { Calendar,Mail,User } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Session } from "next-auth";
 
 // Extend the Session type to include the user.id
 interface CustomSession {

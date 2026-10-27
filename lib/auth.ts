@@ -1,5 +1,6 @@
-import { NextAuthOptions, Session, User as NextAuthUser } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { trustedRedirect } from "./security";
+import { NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -17,24 +18,8 @@ import {
     AUTH_RATE_LIMIT_MESSAGE,
 } from "@/lib/rate-limit";
 
-// Extend NextAuth's User type to include 'id' explicitly for session/jwt callbacks
-declare module "next-auth" {
-    interface User {
-        id: string;
-    }
-    interface Session {
-        user: User & { id: string };
-    }
-}
-
-declare module "next-auth/jwt" {
-    interface JWT {
-        id?: string;
-    }
-}
-
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma) as any, // This cast is often necessary due to adapter types, ensure Prisma models match
+    adapter: PrismaAdapter(prisma) as Adapter,
 
     providers: [
         GoogleProvider({
@@ -50,7 +35,7 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
 
-            authorize: async (credentials: Record<string, string> | undefined, req: any) => {
+            authorize: async (credentials, req) => {
                 // Always return null or generic error to prevent user enumeration
                 const failAuth = () => {
                     // recordFailedAttempt is called before returning null to ensure rate limiting works
@@ -119,14 +104,14 @@ export const authOptions: NextAuthOptions = {
     },
 
     callbacks: {
-        async session({ session, token }: any) {
+        async session({ session, token }) {
             if (session.user && token.sub) {
                 session.user.id = token.sub; // Ensure user.id is set in session
             }
             return session;
         },
 
-        async jwt({ token, user }: any) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id; // Store user.id in JWT token
             }
@@ -134,13 +119,7 @@ export const authOptions: NextAuthOptions = {
         },
 
         // Custom redirect for errors to ensure generic messages
-        async redirect({ url, baseUrl }: any) {
-            if (new URL(url, baseUrl).origin === new URL(baseUrl).origin) return new URL(url, baseUrl).href;
-            // Allows relative callback URLs
-            else if (url.startsWith('/')) return `${baseUrl}${url}`;
-            // Handle other external URLs or malicious attempts. Consider redirecting to a generic error page or login.
-            return baseUrl; 
-        }
+        async redirect({ url, baseUrl }) { return trustedRedirect(url, baseUrl); }
     },
     pages: {
         signIn: '/login',

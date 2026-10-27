@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs"; // Import bcryptjs for hashing
+import { randomBytes } from "crypto";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +50,7 @@ export async function POST() {
         // Hash the plaintext API key before storing it
         const hashedApiKey = await bcrypt.hash(plaintextApiKey, 10); // Use a salt round of 10
 
-        const user = await prisma.user.update({
+        await prisma.user.update({
             where: { id: session.user.id },
             data: { apiKey: hashedApiKey }, // Store the hash
             select: { apiKey: true }, // Select the hash to confirm, though not directly used for response

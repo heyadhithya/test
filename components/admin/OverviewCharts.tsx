@@ -1,8 +1,8 @@
 "use client";
 
+import { AnimatePresence,motion } from "framer-motion";
+import { Award } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Award, Mail, AlertTriangle, RefreshCw } from "lucide-react";
 
 interface TrendItem {
     label: string;

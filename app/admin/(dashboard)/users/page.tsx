@@ -1,5 +1,7 @@
+
+import Image from "next/image";
 import prisma from "@/lib/prisma";
-import { Users, Search, ArrowRight, Activity, Award, Key, Shield } from "lucide-react";
+import { ArrowRight,Key,Search } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -124,7 +126,7 @@ export default async function AdminUsersPage(props: PageProps) {
                                         <td>
                                             <div className="flex items-center gap-3">
                                                 {user.image ? (
-                                                    <img src={user.image} alt={user.name || "avatar"} className="w-8 h-8 rounded-full border border-[var(--color-neon-border)] shrink-0 object-cover" />
+                                                    <Image unoptimized width={40} height={40} src={user.image} alt={user.name || "avatar"} className="w-8 h-8 rounded-full border border-[var(--color-neon-border)] shrink-0 object-cover" />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-full bg-[var(--color-neon-border)] text-[var(--color-neon-muted)] flex items-center justify-center shrink-0 font-bold text-xs uppercase">
                                                         {(user.name || user.email || "?").charAt(0)}

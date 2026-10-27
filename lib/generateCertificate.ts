@@ -1,5 +1,5 @@
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-import QRCode from 'qrcode'
+import { PDFDocument,rgb,StandardFonts } from 'pdf-lib';
+import QRCode from 'qrcode';
 import { z } from 'zod';
 
 export interface CertificateData {
@@ -42,12 +42,11 @@ const certificateSettingsSchema = z.object({
     qrCode: qrCodeElementSchema.partial(),
 }).partial().default({}); // Allow entire settings object to be partial or missing
 
-type CertificateSettings = z.infer<typeof certificateSettingsSchema>;
 
 export async function generateCertificate(
     templateBuffer: ArrayBuffer,
     data: CertificateData,
-    userSettings?: any, // Renamed to userSettings as it might come from an external source
+    userSettings?: unknown, // Renamed to userSettings as it might come from an external source
     baseUrlValue?: string // Ensure this is from trusted source, not user input
 ): Promise<Buffer> {
     // Validate and sanitize certificate data

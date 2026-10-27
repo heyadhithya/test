@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { Activity, ArrowUp, CheckCircle2, Plus, Search, XCircle } from "lucide-react";
+import { Activity,ArrowUp,CheckCircle2,Plus,Search,XCircle } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { Session } from "next-auth";
 
 // Extend the Session type to include the user.id
 interface CustomSession {
@@ -24,12 +23,24 @@ export default async function UsagePage() {
 
     const userId = session.user.id;
 
+    let logs: Awaited<ReturnType<typeof prisma.apiUsageLog.findMany>>;
     try {
-        const logs = await prisma.apiUsageLog.findMany({
+        logs = await prisma.apiUsageLog.findMany({
             where: { userId },
             orderBy: { createdAt: "desc" },
             take: 200, // Limit the number of logs fetched to prevent excessive data loading
         });
+    } catch (error) {
+        console.error("Error fetching usage data:", error);
+        // Redirect to an error page or show a user-friendly message
+        return (
+            <div className="space-y-8 max-w-5xl text-red-400">
+                <h1 className="text-2xl font-bold">Error loading usage data</h1>
+                <p>There was an issue fetching your API usage logs. Please try again later.</p>
+            </div>
+        );
+    }
+
 
         // ── Aggregate stats ───────────────────────────────
         const now = new Date();
@@ -212,14 +223,5 @@ export default async function UsagePage() {
                 )}
             </div>
         );
-    } catch (error) {
-        console.error("Error fetching usage data:", error);
-        // Redirect to an error page or show a user-friendly message
-        return (
-            <div className="space-y-8 max-w-5xl text-red-400">
-                <h1 className="text-2xl font-bold">Error loading usage data</h1>
-                <p>There was an issue fetching your API usage logs. Please try again later.</p>
-            </div>
-        );
-    }
+
 }

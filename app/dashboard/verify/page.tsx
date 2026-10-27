@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { ShieldCheck, Search, CheckCircle2, XCircle, AlertTriangle } from "lucide-react"
 import DOMPurify from 'dompurify'; // Import DOMPurify for sanitization
+import { AlertTriangle,CheckCircle2,Search,XCircle } from "lucide-react";
+import { useState } from "react";
 
 export default function VerifyPage() {
     const [id, setId] = useState("")
@@ -28,12 +28,12 @@ export default function VerifyPage() {
         }
     }
 
-    const StatusIcon = () => {
+    const statusIcon = (() => {
         if (!result) return null
         if (result.status === 200) return <CheckCircle2 className="w-8 h-8 text-emerald-400" />
         if (result.status === 403) return <AlertTriangle className="w-8 h-8 text-amber-400" />
         return <XCircle className="w-8 h-8 text-red-400" />
-    }
+    })();
 
     const statusStyle =
         result?.status === 200 ? "border-emerald-400/30 bg-emerald-400/5 text-emerald-400"
@@ -80,7 +80,7 @@ export default function VerifyPage() {
                 {result && (
                     <div className={`rounded-xl border p-6 space-y-4 ${statusStyle}`}>
                         <div className="flex items-center gap-3">
-                            <StatusIcon />
+                            {statusIcon}
                             <div>
                                 <p className="font-bold text-lg">
                                     {result.status === 200 ? "✅ Verified"

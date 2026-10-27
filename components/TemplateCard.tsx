@@ -11,10 +11,16 @@ interface TemplateCardProps {
     template: {
       name: string
       bgImageUrl: string
-      fields: any[]
+      fields: unknown[]
       eventId?: string
     } | null
   }
+}
+
+type PreviewField = {id: string; label: string; x: number; y: number; fontSize: number};
+function isPreviewField(value: unknown): value is PreviewField {
+  if (typeof value !== "object" || value === null) return false;
+  return "id" in value && typeof value.id === "string" && "label" in value && typeof value.label === "string" && "x" in value && typeof value.x === "number" && "y" in value && typeof value.y === "number" && "fontSize" in value && typeof value.fontSize === "number";
 }
 
 export default function TemplateCard({ event }: TemplateCardProps) {
@@ -35,7 +41,7 @@ export default function TemplateCard({ event }: TemplateCardProps) {
       } else {
         alert("Failed to delete template")
       }
-    } catch (error) {
+    } catch {
       alert("Failed to delete template")
     } finally {
       setDeleting(false)
@@ -55,7 +61,7 @@ export default function TemplateCard({ event }: TemplateCardProps) {
             <div className="absolute inset-0 bg-black/20" />
             {Array.isArray(event.template.fields) && event.template.fields.length > 0 && (
               <div className="absolute inset-0 pointer-events-none">
-                {event.template.fields.map((field: any) => (
+                {event.template.fields.filter(isPreviewField).map((field) => (
                   <div
                     key={field.id}
                     className="absolute text-white text-xs font-medium px-2 py-0.5 bg-black/40 rounded border border-white/20 backdrop-blur-sm"
@@ -102,7 +108,7 @@ export default function TemplateCard({ event }: TemplateCardProps) {
             </p>
             {Array.isArray(event.template.fields) && event.template.fields.length > 0 && (
               <div className="space-y-1">
-                {event.template.fields.map((field: any) => (
+                {event.template.fields.filter(isPreviewField).map((field) => (
                   <div key={field.id} className="flex items-center gap-2 text-xs text-[var(--color-neon-muted)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-neon-primary)] flex-shrink-0" />
                     {field.label}

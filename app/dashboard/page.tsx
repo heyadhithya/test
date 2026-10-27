@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { ArrowRight, Award, TrendingUp, Calendar, AlertTriangle, ExternalLink, ShieldCheck } from "lucide-react";
 import CertificatesGrid from "@/components/CertificatesGrid";
 import CopyLinkButton from "@/components/CopyLinkButton";
-import { Session } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { AlertTriangle,ArrowRight,Award,Calendar,ExternalLink,ShieldCheck,TrendingUp } from "lucide-react";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 // Extend the Session type to include the user.id
 interface CustomSession {
@@ -25,11 +24,23 @@ export default async function DashboardPage() {
         redirect("/login");
     }
 
+    let certificates: Awaited<ReturnType<typeof prisma.certificate.findMany>>;
     try {
-        const certificates = await prisma.certificate.findMany({
+        certificates = await prisma.certificate.findMany({
             where: { userId: session.user.id },
             orderBy: { createdAt: "desc" },
         });
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        // Redirect to an error page or show a user-friendly message
+        return (
+            <div className="space-y-8 max-w-5xl text-red-400">
+                <h1 className="text-2xl font-bold">Error loading dashboard</h1>
+                <p>There was an issue fetching your certificates. Please try again later.</p>
+            </div>
+        );
+    }
+
 
         const thisMonth = certificates.filter(
             c => new Date(c.createdAt).getMonth() === new Date().getMonth()
@@ -170,14 +181,5 @@ export default async function DashboardPage() {
                 )}
             </div>
         );
-    } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        // Redirect to an error page or show a user-friendly message
-        return (
-            <div className="space-y-8 max-w-5xl text-red-400">
-                <h1 className="text-2xl font-bold">Error loading dashboard</h1>
-                <p>There was an issue fetching your certificates. Please try again later.</p>
-            </div>
-        );
-    }
+
 }

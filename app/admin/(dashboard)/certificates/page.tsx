@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
-import { Award, Search, ExternalLink, Calendar, RefreshCw, FileDown, CheckCircle, Clock, XCircle, ShieldAlert } from "lucide-react";
+import type { Prisma } from "@prisma/client";
+import { Calendar,CheckCircle,Clock,FileDown,Search,ShieldAlert,XCircle } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export default async function AdminCertificatesPage(props: PageProps) {
     const pageSize = 15;
 
     // Build Prisma query filters
-    const where: any = {};
+    const where: Prisma.CertificateWhereInput = {};
 
     if (query) {
         where.OR = [

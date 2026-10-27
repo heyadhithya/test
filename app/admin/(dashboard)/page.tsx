@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma";
-import { Users, Award, ShieldAlert, FileText, Mail, Activity, Eye } from "lucide-react";
-import Link from "next/link";
 import OverviewCharts from "@/components/admin/OverviewCharts";
+import prisma from "@/lib/prisma";
+import { Award,Eye,FileText,Mail,Users } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +26,11 @@ export default async function AdminOverviewPage() {
     const totalCertificates = await prisma.certificate.count();
     const totalTemplates = await prisma.template.count();
     const totalEvents = await prisma.event.count();
-    const totalApiLogs = await prisma.apiUsageLog.count();
     const totalVisitors = await getVisitorCount();
 
     // 2. Fetch Email Queue Status
     const totalEmails = await prisma.emailQueue.count();
     const emailsPending = await prisma.emailQueue.count({ where: { status: "pending" } });
-    const emailsSent = await prisma.emailQueue.count({ where: { status: "sent" } });
     const emailsFailed = await prisma.emailQueue.count({ where: { status: "failed" } });
 
     // 3. Fetch Certificate Statuses

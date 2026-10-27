@@ -31,8 +31,8 @@ export default function ForgotPasswordPage() {
             }
 
             setSuccess("If an account with that email exists, we sent a password reset link.");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Request failed");
         } finally {
             setLoading(false);
         }

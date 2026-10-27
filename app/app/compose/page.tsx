@@ -1,27 +1,26 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import Image from "next/image";
 import {
-    Loader2,
-    CheckCircle2,
-    AlertCircle,
-    ArrowLeft,
-    Send,
-    Users,
-    Mail,
-    Sliders,
-    Eye,
-    CheckSquare,
-    Square,
-    Search,
-    Home,
-    LayoutDashboard,
-    LogOut
+AlertCircle,
+ArrowLeft,
+CheckCircle2,
+CheckSquare,
+Eye,
+Home,
+LayoutDashboard,
+Loader2,
+Mail,
+Search,
+Send,
+Sliders,
+Square,
+Users
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter,useSearchParams } from "next/navigation";
+import { Suspense,useEffect,useMemo,useState } from "react";
 
 type Certificate = {
     id: string;
@@ -48,9 +47,9 @@ function ComposeContent() {
     const token = searchParams.get("token");
     const batchId = searchParams.get("batch");
 
-    const [isVerifying, setIsVerifying] = useState(true);
+    const [isVerifying, setIsVerifying] = useState(Boolean(token && batchId));
     const [isValidSession, setIsValidSession] = useState(false);
-    const [verificationError, setVerificationError] = useState("");
+    const [verificationError, setVerificationError] = useState(token && batchId ? "" : "Missing session parameters.");
 
     const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [isLoadingCerts, setIsLoadingCerts] = useState(false);
@@ -64,7 +63,8 @@ function ComposeContent() {
     const [searchQuery, setSearchQuery] = useState("");
 
     // CC validation state
-    const [ccError, setCcError] = useState("");
+    const invalidCc = cc.split(",").map(email => email.trim()).filter(email => email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+    const ccError = invalidCc.length ? `Invalid email address: ${invalidCc.join(", ")}` : "";
 
     // Sending State
     const [isQueuing, setIsQueuing] = useState(false);
@@ -77,39 +77,6 @@ function ComposeContent() {
 
     // Verify compose session token
     useEffect(() => {
-        if (!token || !batchId) {
-            setIsVerifying(false);
-            setIsValidSession(false);
-            setVerificationError("Missing required session parameters (token and batch ID).");
-            return;
-        }
-
-        async function verifySession() {
-            try {
-                const res = await fetch(`/api/emails/verify-session?token=${token}&batchId=${batchId}`);
-                const data = await res.json();
-                if (data.valid) {
-                    setIsValidSession(true);
-                    loadCertificates();
-                } else {
-                    setIsValidSession(false);
-                    setVerificationError(data.error || "The compose session has expired or is invalid.");
-                }
-            } catch (err) {
-                setIsValidSession(false);
-                setVerificationError("Failed to verify the secure email session.");
-            } finally {
-                setIsVerifying(false);
-            }
-        }
-
-        if (authStatus === "authenticated") {
-            verifySession();
-        } else if (authStatus === "unauthenticated") {
-            router.push("/login");
-        }
-    }, [token, batchId, authStatus]);
-
     // Load certificates
     async function loadCertificates() {
         if (!batchId) return;
@@ -131,21 +98,35 @@ function ComposeContent() {
         }
     }
 
-    // CC validator
-    useEffect(() => {
-        if (!cc.trim()) {
-            setCcError("");
+        if (!token || !batchId) {
             return;
         }
-        const emails = cc.split(",").map(e => e.trim());
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const invalidEmails = emails.filter(e => e && !emailRegex.test(e));
-        if (invalidEmails.length > 0) {
-            setCcError(`Invalid email address: ${invalidEmails.join(", ")}`);
-        } else {
-            setCcError("");
+
+        async function verifySession() {
+            try {
+                const res = await fetch(`/api/emails/verify-session?token=${token}&batchId=${batchId}`);
+                const data = await res.json();
+                if (data.valid) {
+                    setIsValidSession(true);
+                    loadCertificates();
+                } else {
+                    setIsValidSession(false);
+                    setVerificationError(data.error || "The compose session has expired or is invalid.");
+                }
+            } catch {
+                setIsValidSession(false);
+                setVerificationError("Failed to verify the secure email session.");
+            } finally {
+                setIsVerifying(false);
+            }
         }
-    }, [cc]);
+
+        if (authStatus === "authenticated") {
+            verifySession();
+        } else if (authStatus === "unauthenticated") {
+            router.push("/login");
+        }
+    }, [token, batchId, authStatus, router]);
 
     // Filtering certificates
     const filteredCertificates = useMemo(() => {
@@ -214,7 +195,6 @@ function ComposeContent() {
             .replace(/{verifyUrl}/g, data.verifyUrl)
             .replace(/\n/g, "<br />");
 
-        const safeName = sampleCert.name;
         const safeCertificateId = sampleCert.certificateId;
 
         if (selectedTheme === "modern") {
@@ -301,8 +281,8 @@ function ComposeContent() {
 
             setQueuedCount(data.count);
             setSendSuccess(true);
-        } catch (err: any) {
-            setGeneralError(err.message || "Failed to queue emails.");
+        } catch (err: unknown) {
+            setGeneralError((err instanceof Error ? err.message : "Request failed") || "Failed to queue emails.");
         } finally {
             setIsQueuing(false);
         }
@@ -363,7 +343,7 @@ function ComposeContent() {
             let successfullySent = 0;
 
             for (let i = 0; i < certChunks.length; i++) {
-                const chunk = certChunks[i];
+
                 setSendingStatusText(`Sending emails: Dispatching batch ${i + 1} of ${certChunks.length}...`);
 
                 // Fetch queue IDs for this chunk
@@ -395,15 +375,15 @@ function ComposeContent() {
                     throw new Error(sendData.error || "Failed to deliver emails.");
                 }
 
-                successfullySent = sendData.results?.filter((r: any) => r.status === "sent").length || 0;
+                successfullySent = sendData.results?.filter((r: {status: string}) => r.status === "sent").length || 0;
             }
 
             setSendingProgress(100);
             setSendingStatusText("All emails successfully sent and recorded!");
             setQueuedCount(successfullySent);
             setSendSuccess(true);
-        } catch (err: any) {
-            setGeneralError(err.message || "Failed to process and send emails.");
+        } catch (err: unknown) {
+            setGeneralError((err instanceof Error ? err.message : "Request failed") || "Failed to process and send emails.");
         } finally {
             setIsSending(false);
         }

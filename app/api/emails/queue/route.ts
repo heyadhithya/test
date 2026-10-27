@@ -78,9 +78,9 @@ export async function POST(req: NextRequest) {
                     userId: session.user.id,
                 },
             });
-        }).filter(Boolean);
+        }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 
-        await prisma.$transaction(upsertPromises as any);
+        await prisma.$transaction(upsertPromises);
 
         // Update certificates status to "pending" if they are queued for email
         await prisma.certificate.updateMany({
@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ success: true, count: upsertPromises.length });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Failed to queue emails:", error);
-        return NextResponse.json({ error: error.message || "Failed to queue emails" }, { status: 500 });
+        return NextResponse.json({ error: (error instanceof Error ? error.message : "Request failed") || "Failed to queue emails" }, { status: 500 });
     }
 }

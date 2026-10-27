@@ -1,11 +1,11 @@
 "use client";
 
+import { AlertCircle,Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { LogIn, Loader2, AlertCircle } from "lucide-react";
-import Link from "next/link";
-import { useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter,useSearchParams } from "next/navigation";
+import { Suspense,useState } from "react";
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();

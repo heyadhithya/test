@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle,Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 function validate(name: string, email: string, password: string) {
     const errors: { name?: string; email?: string; password?: string } = {};
@@ -60,7 +60,7 @@ export default function RegisterPage() {
         setError("");
         try {
             await signIn("google", { callbackUrl: getAppCallbackUrl() });
-        } catch (err) {
+        } catch {
             setError("Google sign-in failed. Check the provider configuration.");
         }
     };
@@ -102,9 +102,9 @@ export default function RegisterPage() {
             }
 
             router.push("/login?registered=true");
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Registration request failed:", err);
-            setError(err.message);
+            setError(err instanceof Error ? err.message : "Request failed");
         } finally {
             setLoading(false);
         }

@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { generateCertificate } from "@/lib/generateCertificate";
-import { uploadToS3 } from "@/lib/s3";
-import { generateCertificateId } from "@/lib/certificateIds";
 import { sendCertificateEmail } from "@/lib/certificateEmail";
+import { generateCertificateId } from "@/lib/certificateIds";
+import { generateCertificate } from "@/lib/generateCertificate";
+import prisma from "@/lib/prisma";
+import { uploadToS3 } from "@/lib/s3";
 import { safeFetch } from "@/lib/url-validation";
+import { NextRequest,NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +18,6 @@ export async function OPTIONS() {
     return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
-function generateCertId(): string {
-    const buf = new Uint8Array(4);
-    crypto.getRandomValues(buf);
-    return "CERT-" + Array.from(buf).map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-}
 
 export async function POST(req: NextRequest) {
     if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});

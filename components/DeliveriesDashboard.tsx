@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo, useDeferredValue } from "react";
 import {
-    AlertCircle,
-    CheckCircle2,
-    Copy,
-    ExternalLink,
-    Filter,
-    Loader2,
-    Mail,
-    RefreshCw,
-    Search,
-    XCircle,
-    Clock,
-    ShieldCheck
+AlertCircle,
+CheckCircle2,
+Clock,
+ExternalLink,
+Filter,
+Loader2,
+Mail,
+RefreshCw,
+Search,
+XCircle
 } from "lucide-react";
+import { useDeferredValue,useEffect,useMemo,useState } from "react";
 
 type CertificateStatus = "pending" | "generated" | "sent" | "failed" | string;
 
@@ -136,9 +134,6 @@ export default function DeliveriesDashboard() {
 
     const deferredSearch = useDeferredValue(searchQuery);
 
-    useEffect(() => {
-        setPage(1);
-    }, [statusFilter, deferredSearch]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -299,7 +294,7 @@ export default function DeliveriesDashboard() {
                     <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-neon-muted)]" />
                     <input
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => { setPage(1); setSearchQuery(e.target.value); }}
                         placeholder="Search by participant name, email, course, or certificate ID"
                         className="w-full rounded-xl border border-[var(--color-neon-border)] bg-[var(--color-neon-surface)] pl-10 pr-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-[var(--color-neon-muted)] focus:border-[var(--color-neon-primary)]"
                     />
@@ -309,7 +304,7 @@ export default function DeliveriesDashboard() {
                     <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-neon-muted)]" />
                     <select
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
+                        onChange={(e) => { setPage(1); setStatusFilter(e.target.value); }}
                         className="w-full appearance-none rounded-xl border border-[var(--color-neon-border)] bg-[var(--color-neon-surface)] pl-10 pr-4 py-3 text-sm text-white outline-none transition-colors focus:border-[var(--color-neon-primary)]"
                     >
                         {STATUS_OPTIONS.map((option) => (
