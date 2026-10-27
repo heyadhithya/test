@@ -20,3 +20,7 @@ Independent reviewer found no authentication bypass and confirmed admission deni
 ## Real PostgreSQL validation and approved index application
 
 Independent reviewer inspected the disposable PostgreSQL17.11 evidence and confirmed the single CREATE INDEX changes no tables, grants, policies or user records. Local tests passed before hosted application. Target identity, table columns and existing indexes were rechecked; the index migration succeeded on vvucjlhjrbsxjtdcflwf with bounded lock/statement timeouts. Post-apply metadata confirms valid/ready. No auth activation or hosted data mutation occurred.
+
+## Integration datasource mapping review
+
+Independent review confirms consistent DATABASE_URL/POSTGRES_PRISMA_URL precedence, server-only imports, no public-variable fallback, no direct migration URL use, no logging or environment mutation.30 tests plus lint/typecheck/build pass. Reviewer flagged automatic Git deployment risk following owner linkage; local commit retained until branch publication can avoid deployment and Preview credential exposure.

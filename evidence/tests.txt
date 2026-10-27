@@ -2,39 +2,41 @@
 > sairam-ecosystem-certifications@0.1.0 test
 > node --test tests/*.test.mjs
 
-✔ distributed admission converges under concurrent requests and stores no address (3.593784ms)
-✔ global and recipient thresholds fail closed before insert (0.59072ms)
-✔ missing approval, nonallowlisted address and database errors cannot admit (0.29222ms)
-✔ cleanup/index contract is bounded and does not consume unexpired verification links (0.188434ms)
-✔ installed Prisma adapter racing consumers return a verification token only once (2.319745ms)
-✔ installed NextAuth stops before token creation or delivery when distributed admission denies (49.645848ms)
-✔ strict email normalization, configured allowlist and separate readiness (1.789847ms)
-✔ delivery rejects hostile origin and fails closed without leaking provider errors (3.427394ms)
-✔ auth callbacks enforce allowlist at consumption and preserve session owner IDs (26.736793ms)
-✔ installed NextAuth consumes token atomically and rejects replay, expiry and identifier mismatch (55.708172ms)
-✔ installed NextAuth creates hashed expiring tokens and rejects send failures (1.118365ms)
-✔ email request wrapper hides provider errors without bypassing handler CSRF checks (16.10264ms)
-✔ installed NextAuth rejects missing CSRF before sending or writing tokens (12.802388ms)
-✔ HTTP transport accepts only provider acknowledgement and sends a single approved recipient (0.44494ms)
-✔ guest PDF generation omits QR assets and handles absent settings (254.958252ms)
-✔ legacy admin fails closed (3.607075ms)
-✔ limits remain upstream defaults (7.328257ms)
-✔ generation forces guest QR off and uses configured origin (0.410145ms)
-✔ no known admin master password or forced upstream auth origin (0.345569ms)
-✔ persistent issuance retries preserve ID and never verify before upload (8.070488ms)
-✔ private storage rejects public buckets and recovers exact duplicate uploads (11.340094ms)
-✔ stable PDF bytes support upload retry comparison (69.450231ms)
-✔ request digest frames input and binds origin and render version (5.090226ms)
-✔ redirects reject lookalike origins, protocol-relative attackers and script URLs (3.151368ms)
-✔ private PDF handler enforces configured state, auth and owner query (5.858991ms)
-✔ registry does not verify pending, missing-PDF or revoked credentials and omits private fields (3.596296ms)
-✔ concurrent issuance converges; DB failure after upload retries same object (3.791759ms)
-✔ Prisma batch adapter uses conflict-safe reservation and exposes only owner download URLs (11.425882ms)
-ℹ tests 28
+✔ distributed admission converges under concurrent requests and stores no address (4.253343ms)
+✔ global and recipient thresholds fail closed before insert (0.770399ms)
+✔ missing approval, nonallowlisted address and database errors cannot admit (0.408722ms)
+✔ cleanup/index contract is bounded and does not consume unexpired verification links (0.230824ms)
+✔ installed Prisma adapter racing consumers return a verification token only once (3.15859ms)
+✔ installed NextAuth stops before token creation or delivery when distributed admission denies (64.392146ms)
+✔ server URL mapping uses explicit DATABASE_URL then integration Prisma URL only (0.930418ms)
+✔ Prisma constructor receives integration URL at runtime without modifying environment (22.883049ms)
+✔ strict email normalization, configured allowlist and separate readiness (1.717985ms)
+✔ delivery rejects hostile origin and fails closed without leaking provider errors (3.420664ms)
+✔ auth callbacks enforce allowlist at consumption and preserve session owner IDs (21.544509ms)
+✔ installed NextAuth consumes token atomically and rejects replay, expiry and identifier mismatch (66.738179ms)
+✔ installed NextAuth creates hashed expiring tokens and rejects send failures (1.323836ms)
+✔ email request wrapper hides provider errors without bypassing handler CSRF checks (15.220018ms)
+✔ installed NextAuth rejects missing CSRF before sending or writing tokens (16.205797ms)
+✔ HTTP transport accepts only provider acknowledgement and sends a single approved recipient (0.480419ms)
+✔ guest PDF generation omits QR assets and handles absent settings (248.496281ms)
+✔ legacy admin fails closed (4.041691ms)
+✔ limits remain upstream defaults (9.703858ms)
+✔ generation forces guest QR off and uses configured origin (0.478015ms)
+✔ no known admin master password or forced upstream auth origin (0.585224ms)
+✔ persistent issuance retries preserve ID and never verify before upload (7.51471ms)
+✔ private storage rejects public buckets and recovers exact duplicate uploads (13.299436ms)
+✔ stable PDF bytes support upload retry comparison (79.127039ms)
+✔ request digest frames input and binds origin and render version (6.042183ms)
+✔ redirects reject lookalike origins, protocol-relative attackers and script URLs (3.515427ms)
+✔ private PDF handler enforces configured state, auth and owner query (6.219411ms)
+✔ registry does not verify pending, missing-PDF or revoked credentials and omits private fields (4.12173ms)
+✔ concurrent issuance converges; DB failure after upload retries same object (4.512083ms)
+✔ Prisma batch adapter uses conflict-safe reservation and exposes only owner download URLs (12.433943ms)
+ℹ tests 30
 ℹ suites 0
-ℹ pass 28
+ℹ pass 30
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 694.324637
+ℹ duration_ms 1053.829993

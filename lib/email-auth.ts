@@ -1,3 +1,4 @@
+import { databaseUrl } from './database-config';
 import type { EmailConfig } from 'next-auth/providers/email';
 
 export function normalizeEmail(value: string): string {
@@ -15,7 +16,7 @@ export function authReady(): boolean {
     try {
         const origin = new URL(process.env.NEXTAUTH_URL || '');
         return process.env.AUTH_ENABLED === 'true' && process.env.AUTH_GUARDS_READY === 'true' && origin.protocol === 'https:' && origin.pathname === '/' && !origin.username && !origin.password && !origin.search && !origin.hash &&
-            !!process.env.DATABASE_URL && (process.env.NEXTAUTH_SECRET?.length || 0) >= 32 && !!process.env.AUTH_RESEND_API_KEY && !!process.env.AUTH_EMAIL_FROM &&
+            !!databaseUrl() && (process.env.NEXTAUTH_SECRET?.length || 0) >= 32 && !!process.env.AUTH_RESEND_API_KEY && !!process.env.AUTH_EMAIL_FROM &&
             (process.env.AUTH_EMAIL_ALLOWLIST || '').split(',').some(value => allowedEmail(value));
     } catch { return false; }
 }

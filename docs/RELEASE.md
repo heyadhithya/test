@@ -76,3 +76,15 @@ Keep `AUTH_GUARDS_READY` unset pending secure application configuration and live
 
 
 Local test provenance: official Docker `postgres:17`, digest `sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe`, PostgreSQL17.11. Test database `sairam_auth_guards` used tmpfs storage and loopback port55432 only. The script has a fixed disposable local connection and cannot accept a hosted URL. Synthetic rows were local only; container and temporary database were removed after tests. Hosted migration used a 2s lock timeout and 30s statement timeout, creating only the index.
+
+## Verified integration runtime mapping
+
+Vercel store `store_J6E3PfSjxPMCbWc3` maps to new Supabase `vvucjlhjrbsxjtdcflwf`; its sole connected project is `prj_uVCEbVhur5ATVwmfTbxSFKz7N1sD`. All16 integration variables were metadata-verified sensitive, but the binding mistakenly covers Preview and Production. Correct the resource connection to Production only before any automatic Git deployment. Individual env target edits would not establish a durable binding correction; the connected tools lack the Marketplace connection-update endpoint, and no normal authenticated CLI/API session is available locally.
+
+The runtime Prisma client now selects server-only `DATABASE_URL` if explicitly set, otherwise `POSTGRES_PRISMA_URL`, using Prisma6's documented datasource override. Auth readiness uses the same selector. No secret value is copied, decrypted, logged, embedded in client bundles or placed in a public env variable. Direct connection strings remain unused: application startup/build does not run migrations. Future CLI migrations require explicit reviewed configuration, not runtime aliasing. Reference: https://www.prisma.io/docs/orm/v6/reference/prisma-client-reference#datasources .
+
+Stable canonical domain `sairam-ecosystem-certifications.vercel.app` is verified on the new project. Homepage and disabled callback return200 without redirect. `NEXTAUTH_URL=https://sairam-ecosystem-certifications.vercel.app` is set Production-only. Deployment-specific hostname uses Vercel SSO; protection was not changed. This does not prove active authentication callback success.
+
+Fresh NEXTAUTH_SECRET/ISSUANCE_ID_SECRET are still absent: the orchestrator has no cryptographic random generator, and the env tool requires a supplied value. Local Node can generate secrets but there is no authenticated local Vercel destination; bridging through command output would expose secrets. No secrets were generated or emitted. Sender key/from/allowlist and issuer grants remain unconfigured.
+
+Repository linkage is now active. Available metadata cannot establish a branch with Git deployments disabled, so runtime-mapping changes are retained locally pending safe publication; publishing must not trigger the previously prohibited deployment or Preview credential exposure.

@@ -1,7 +1,9 @@
+import { databaseUrl } from './database-config'
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  const url = databaseUrl()
+  return new PrismaClient(url ? { datasources: { db: { url } } } : undefined)
 }
 
 declare const globalThis: {

@@ -10,7 +10,7 @@ const url='postgresql://postgres:local-disposable-test-only@127.0.0.1:55432/sair
 const db=new PrismaClient({datasources:{db:{url}}});
 const other=new PrismaClient({datasources:{db:{url}}});
 function load(file,overrides={}){const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;const loaded={exports:{}};new Function('require','module','exports',code)(id=>id in overrides?overrides[id]:require(id),loaded,loaded.exports);return loaded.exports;}
-const email=load('lib/email-auth.ts');
+const email=load('lib/email-auth.ts',{'./database-config':load('lib/database-config.ts')});
 const {admitEmail}=load('lib/auth-admission.ts',{'./prisma':{__esModule:true,default:db},'./email-auth':email});
 Object.assign(process.env,{AUTH_GUARDS_READY:'true',AUTH_EMAIL_ALLOWLIST:'one@example.com,two@example.com',NEXTAUTH_SECRET:'local-fixture-not-a-deployed-secret'});
 const global='system:auth:admission:global';
