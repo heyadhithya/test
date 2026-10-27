@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { randomBytes } from "crypto";
-import bcrypt from "bcryptjs"; // Import bcryptjs for hashing
+import { createHash, randomBytes } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
 // Generate a new, cryptographically secure API key
 function generateApiKey(): string {
     // Increase entropy: 32 bytes for 64-char hex string, plus 'vura_' prefix
-    return "vura_" + randomBytes(32).toString("hex");
+    return "fr_" + randomBytes(32).toString("hex");
 }
 
 // GET — return the current masked key (or null if not generated yet)
@@ -27,7 +26,7 @@ export async function GET() {
         });
 
         // Do NOT return the plaintext API key. Return a masked version.
-        const maskedApiKey = user?.apiKey ? `vura_************${user.apiKey.slice(-4)}` : null;
+        const maskedApiKey = user?.apiKey ? "fr_•••••••••••• (rotate to view a new key)" : null;
 
         return NextResponse.json({ apiKey: maskedApiKey });
     } catch (error) {
@@ -46,11 +45,12 @@ export async function POST() {
     try {
         const plaintextApiKey = generateApiKey();
         // Hash the plaintext API key before storing it
-        const hashedApiKey = await bcrypt.hash(plaintextApiKey, 10); // Use a salt round of 10
+        // API keys have 256 bits of entropy; a stable SHA-256 digest permits indexed lookup.
+        const keyDigest = createHash("sha256").update(plaintextApiKey).digest("hex");
 
         const user = await prisma.user.update({
             where: { id: session.user.id },
-            data: { apiKey: hashedApiKey }, // Store the hash
+            data: { apiKey: keyDigest }, // Store only the one-way digest.
             select: { apiKey: true }, // Select the hash to confirm, though not directly used for response
         });
 
