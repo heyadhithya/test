@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const nameValidation = nonEmptyString("Template name").safeParse(name)
     if (!nameValidation.success) {
       return NextResponse.json(
-        { error: nameValidation.error.errors[0].message },
+        { error: nameValidation.error.issues[0].message },
         { status: 400 }
       )
     }
