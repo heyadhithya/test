@@ -102,6 +102,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@index([expires, token])
 }
 
 model Event {

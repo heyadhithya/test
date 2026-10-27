@@ -14,27 +14,11 @@ export function allowedEmail(value: string | null | undefined): boolean {
 export function authReady(): boolean {
     try {
         const origin = new URL(process.env.NEXTAUTH_URL || '');
-        return process.env.AUTH_ENABLED === 'true' && origin.protocol === 'https:' && origin.pathname === '/' && !origin.username && !origin.password && !origin.search && !origin.hash &&
+        return process.env.AUTH_ENABLED === 'true' && process.env.AUTH_GUARDS_READY === 'true' && origin.protocol === 'https:' && origin.pathname === '/' && !origin.username && !origin.password && !origin.search && !origin.hash &&
             !!process.env.DATABASE_URL && (process.env.NEXTAUTH_SECRET?.length || 0) >= 32 && !!process.env.AUTH_RESEND_API_KEY && !!process.env.AUTH_EMAIL_FROM &&
             (process.env.AUTH_EMAIL_ALLOWLIST || '').split(',').some(value => allowedEmail(value));
     } catch { return false; }
 }
-// Bounded per-process defense; production also requires distributed provider/platform limits.
-export function createSendLimiter() {
-    const attempts = new Map<string, number[]>();
-    return (email: string, now = Date.now()): boolean => {
-        for (const [key, values] of attempts) {
-            const live = values.filter(time => now - time < 3600000);
-            if (live.length) attempts.set(key, live); else attempts.delete(key);
-        }
-        const times = attempts.get(email) || [];
-        if (attempts.size >= 100 && !attempts.has(email)) return false;
-        if (times.length >= 3 || (times.length > 0 && now - times[times.length - 1] < 60000)) return false;
-        attempts.set(email, [...times, now]);
-        return true;
-    };
-}
-const canSend = createSendLimiter();
 export async function sendSignInLink(identifier: string, url: string, send = fetch): Promise<void> {
     const email = normalizeEmail(identifier);
     // Same public request response for unlisted or throttled addresses; never grant a session here.
@@ -42,7 +26,6 @@ export async function sendSignInLink(identifier: string, url: string, send = fet
     if (!authReady()) throw new Error('Sign-in unavailable');
     const link = new URL(url);
     if (link.origin !== new URL(process.env.NEXTAUTH_URL!).origin || link.pathname !== '/api/auth/callback/email' || link.username || link.password) throw new Error('Sign-in unavailable');
-    if (!canSend(email)) return;
     try {
         const response = await send('https://api.resend.com/emails', {
             method: 'POST', headers: { Authorization: `Bearer ${process.env.AUTH_RESEND_API_KEY}`, 'Content-Type': 'application/json' },

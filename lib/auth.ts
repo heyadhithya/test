@@ -1,4 +1,5 @@
 import { trustedRedirect } from './security';
+import { admitEmail } from './auth-admission';
 import { allowedEmail, emailProvider } from './email-auth';
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
@@ -15,7 +16,7 @@ export const authOptions: NextAuthOptions = {
         async signIn({ user, email, account }) {
             if (account?.provider !== 'email') return false;
             // Requests are indistinguishable; callback authorization still requires the allowlist.
-            if (email?.verificationRequest) return true;
+            if (email?.verificationRequest) return await admitEmail(user.email) ? true : `${process.env.NEXTAUTH_URL}/login?sent=1`;
             return allowedEmail(user.email);
         },
         async session({ session, token }) {

@@ -11,3 +11,7 @@ A further independent review covered the patched dependency tree, real auth typi
 ## Email-link review
 
 Independent security_review inspected NextAuth internals, the new provider, auth route, login UI and tests. Fixed alternate catchall paths bypassing request admission. Reviewer confirmed signed CSRF checks, random token generation, hashed persistence, expiry/identifier checks and single-use consumption. Cleared for review-branch publication with auth disabled, not production activation. Remaining gates: distributed admission, expired token cleanup, approved credentials/sender, real delivery/session tests, synchronous timing disclosure and existing-JWT revocation policy. Browser testing additionally caught disabled-provider navigation; login now checks provider availability and displays the same generic message.
+
+## Distributed auth guard review
+
+Independent reviewer found no authentication bypass and confirmed admission denial exits NextAuth before link-token creation/delivery. Applied review recommendations: explicit ReadCommitted isolation, server statement timeout 2s and lock timeout 500ms, schema-qualified SQL. Reviewed nonblocking advisory lock, conservative shared budgets and cleanup limit100 with SKIP LOCKED. Proposed index remains unapplied; AUTH_GUARDS_READY must remain disabled until approved live database tests verify concurrency, rollback and query plans. No external mutation occurred in this phase.

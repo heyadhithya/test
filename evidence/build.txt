@@ -4,25 +4,25 @@
 
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 77ms
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 75ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
 
 ▲ Next.js 16.4.3 (Turbopack)
-✓ Running next.config.ts took 29ms
+✓ Running next.config.ts took 26ms
 
   Creating an optimized production build ...
-✓ Compiled successfully in 663ms
+✓ Compiled successfully in 542ms
   Running TypeScript ...
-  Finished TypeScript in 2.2s ...
+  Finished TypeScript in 1956ms ...
   Collecting page data using 4 workers ...
   Generating static pages using 4 workers (0/30) ...
   Generating static pages using 4 workers (7/30) 
   Generating static pages using 4 workers (14/30) 
   Generating static pages using 4 workers (22/30) 
-✓ Generating static pages using 4 workers (30/30) in 437ms
+✓ Generating static pages using 4 workers (30/30) in 420ms
   Finalizing page optimization ...
 
 Route (app)
