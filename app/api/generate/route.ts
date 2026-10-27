@@ -1,3 +1,4 @@
+import {issueBatch} from "@/lib/verified-issuance";
 import { NextRequest, NextResponse } from "next/server";
 import * as xlsx from "xlsx";
 import crypto from "crypto";
@@ -149,6 +150,8 @@ export async function POST(req: NextRequest) {
 
     const saveToDb = formData.get("saveToDb") !== "false";
     const batchId = generateBatchId();
+    if (saveToDb && process.env.VERIFIED_ISSUANCE_ENABLED !== "true") return NextResponse.json({error: "Verified issuance is unavailable until isolated storage and database setup are approved."}, {status: 503});
+    if (!saveToDb || previewOnly) settings = {...(settings ?? {}), qrCode: {...(settings?.qrCode ?? {}), enabled: false}};
 
     if (saveToDb && (!session || !session.user)) {
       return NextResponse.json(
@@ -244,11 +247,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (saveToDb && !previewOnly) {
+      const allowed = (process.env.ISSUER_USER_IDS || "").split(",").map(e=>e.trim());
+      if (!session?.user?.id || !allowed.includes(session.user.id)) return NextResponse.json({error:"Issuer access required"},{status:403});
+      const limit = validateRowCount(rows.length);
+      if (limit) return NextResponse.json({error:limit.message},{status:limit.status});
+      return NextResponse.json(await issueBatch(session.user.id,templateBuffer,datasetBuffer,settings,rows));
+    }
+
     // ── Preview-only: generate a single certificate from row[0] in-memory ──
     if (previewOnly) {
       const protocol = req.headers.get("x-forwarded-proto") || "http";
       const host = req.headers.get("host");
-      const dynamicBaseUrl = host ? `${protocol}://${host}` : undefined;
+      const dynamicBaseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
       const normalizedRow: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(rows[0])) {
@@ -260,6 +271,7 @@ export async function POST(req: NextRequest) {
         course: String(normalizedRow.course || "Preview Course"),
         issueDate: String(normalizedRow.issuedate || "Preview Date"),
         certificateId: "PREVIEW-0000",
+        verificationStatus: "guest" as const,
       };
 
       try {
@@ -314,7 +326,7 @@ export async function POST(req: NextRequest) {
     // Determine base URL dynamically so the QR code works in production
     const protocol = req.headers.get("x-forwarded-proto") || "http";
     const host = req.headers.get("host"); // e.g. "vuraweb.vercel.app"
-    const dynamicBaseUrl = host ? `${protocol}://${host}` : undefined;
+    const dynamicBaseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Prepare S3 URL for the original template (only if saving to DB)
     let templateS3Url = "";
@@ -363,6 +375,7 @@ export async function POST(req: NextRequest) {
           normalizedRow.issuedate || (!needsIssueDate ? "" : "Unknown"),
         ).trim(),
         certificateId,
+        verificationStatus: "guest" as const,
       };
 
       let certificateRecord: { id: string; status: string } | null = null;
@@ -413,7 +426,7 @@ export async function POST(req: NextRequest) {
 
         let finalStatus = saveToDb
           ? (certificateRecord?.status ?? "generated")
-          : "generated";
+          : "guest";
         let failureReason: string | null = null;
         let sentAt: string | null = null;
 

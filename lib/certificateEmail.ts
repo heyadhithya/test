@@ -77,7 +77,7 @@ function getEmailHtml({
                                 <tr>
                                     <td style="padding:40px 30px;background:linear-gradient(135deg, #111827 0%, #0c0f1d 100%);">
                                         <div style="margin-bottom:24px;">
-                                            <span style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:2px;">VURA</span>
+                                            <span style="font-size:24px;font-weight:900;color:#ffffff;letter-spacing:2px;">SAIRAM CERTIFY</span>
                                         </div>
                                         <h2 style="margin:0 0 16px;color:#ffffff;font-size:22px;font-weight:700;line-height:1.3;">Your Certificate is Ready!</h2>
                                         <div style="color:#9ca3af;font-size:15px;line-height:1.6;margin-bottom:30px;">
@@ -92,7 +92,7 @@ function getEmailHtml({
                                         </table>
                                         <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;margin-top:20px;font-size:12px;color:#6b7280;line-height:1.5;">
                                             <p style="margin:0 0 4px;">Certificate ID: <span style="font-family:monospace;color:#00e599;">${safeCertificateId}</span></p>
-                                            <p style="margin:0;">This email was sent by Vura Certificate Authority.</p>
+                                            <p style="margin:0;">This email was sent by Sairam Certify Certificate Authority.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -117,7 +117,7 @@ function getEmailHtml({
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#ffffff;padding:40px 20px;">
                     <tr>
                         <td align="left" style="max-width:600px;width:100%;margin:0 auto;">
-                            <div style="font-size:16px;font-weight:800;letter-spacing:1px;margin-bottom:40px;color:#000000;">VURA</div>
+                            <div style="font-size:16px;font-weight:800;letter-spacing:1px;margin-bottom:40px;color:#000000;">SAIRAM CERTIFY</div>
                             <h2 style="font-size:24px;font-weight:400;margin:0 0 24px;color:#000000;">Certificate Available</h2>
                             <div style="font-size:15px;line-height:1.7;color:#333333;margin-bottom:32px;">
                                 ${formattedBody}
@@ -127,7 +127,7 @@ function getEmailHtml({
                             </div>
                             <div style="border-top:1px solid #eeeeee;padding-top:24px;font-size:12px;color:#888888;line-height:1.5;">
                                 <p style="margin:0 0 4px;">Certificate ID: ${safeCertificateId}</p>
-                                <p style="margin:0;">Vura Certificate Authority</p>
+                                <p style="margin:0;">Sairam Certify Certificate Authority</p>
                             </div>
                         </td>
                     </tr>
@@ -152,7 +152,7 @@ function getEmailHtml({
                         <table width="100%" max-width="600" style="max-width:600px;background-color:#ffffff;border-top:4px solid #111827;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.05);overflow:hidden;text-align:left;">
                             <tr>
                                 <td style="padding:40px 30px;">
-                                    <div style="font-size:18px;font-weight:bold;color:#111827;margin-bottom:24px;letter-spacing:1px;">VURA</div>
+                                    <div style="font-size:18px;font-weight:bold;color:#111827;margin-bottom:24px;letter-spacing:1px;">SAIRAM CERTIFY</div>
                                     <h2 style="margin:0 0 16px;color:#111827;font-size:20px;font-weight:700;line-height:1.3;">Certificate Issuance Notification</h2>
                                     <div style="color:#4b5563;font-size:15px;line-height:1.6;margin-bottom:30px;">
                                         ${formattedBody}
@@ -167,7 +167,7 @@ function getEmailHtml({
                                     <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;"/>
                                     <div style="font-size:12px;color:#9ca3af;line-height:1.5;">
                                         <p style="margin:0 0 4px;">Certificate ID: ${safeCertificateId}</p>
-                                        <p style="margin:0;">This is an automated message sent by Vura Certificate Service.</p>
+                                        <p style="margin:0;">This is an automated message sent by Sairam Certify Certificate Service.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -194,7 +194,7 @@ export async function sendCertificateEmail({
     // Replace localhost urls with vurakit.in in verification emails
     let finalVerifyUrl = verifyUrl;
     if (verifyUrl.includes("localhost") || verifyUrl.includes("127.0.0.1")) {
-        finalVerifyUrl = verifyUrl.replace(/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/, "https://vurakit.in");
+        finalVerifyUrl = verifyUrl.replace(/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/, "http://localhost:3000");
     }
 
     const placeholderData = {
@@ -219,7 +219,7 @@ export async function sendCertificateEmail({
         theme
     });
 
-    const fromAddress = process.env.RESEND_FROM || process.env.SMTP_FROM || "Vura <onboarding@resend.dev>";
+    const fromAddress = process.env.RESEND_FROM || process.env.SMTP_FROM || "Sairam Certify <onboarding@resend.dev>";
     const parsedCc = cc && cc.trim() ? cc.split(",").map(c => c.trim()).filter(Boolean) : undefined;
 
     // 1. Attempt Resend
@@ -264,7 +264,7 @@ export async function sendCertificateEmail({
                     pass: process.env.SMTP_PASS,
                 },
                 tls: {
-                    rejectUnauthorized: false
+                    rejectUnauthorized: true
                 }
             });
 
@@ -285,22 +285,14 @@ export async function sendCertificateEmail({
     }
 
     // 3. Fallback for development without Resend API Key and SMTP config
-    console.log("=== MOCK EMAIL SENT ===");
-    console.log(`To: ${recipientEmail}`);
-    if (parsedCc) console.log(`CC: ${parsedCc.join(", ")}`);
-    console.log(`From: ${fromAddress}`);
-    console.log(`Subject: ${finalSubject}`);
-    console.log(`Theme: ${theme}`);
-    console.log(`Body (Plaintext): \n${finalBodyText}`);
-    console.log("========================");
-    return true;
+    throw new Error("Email delivery is not configured");
 }
 
 export async function sendPasswordResetEmail({
     email,
     resetUrl
 }: SendPasswordResetEmailInput): Promise<boolean> {
-    const fromAddress = process.env.RESEND_FROM || process.env.SMTP_FROM || "Vura <onboarding@resend.dev>";
+    const fromAddress = process.env.RESEND_FROM || process.env.SMTP_FROM || "Sairam Certify <onboarding@resend.dev>";
 
     const htmlContent = `
         <div style="font-family:sans-serif;line-height:1.6;color:#1f2937;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e5e7eb;border-radius:8px;">
@@ -352,7 +344,7 @@ export async function sendPasswordResetEmail({
                     pass: process.env.SMTP_PASS,
                 },
                 tls: {
-                    rejectUnauthorized: false
+                    rejectUnauthorized: true
                 }
             });
 
@@ -372,10 +364,5 @@ export async function sendPasswordResetEmail({
     }
 
     // 3. Dev Fallback
-    console.log("=== MOCK PASSWORD RESET EMAIL SENT ===");
-    console.log(`To: ${email}`);
-    console.log(`From: ${fromAddress}`);
-    console.log(`Reset URL: ${resetUrl}`);
-    console.log("======================================");
-    return true;
+    throw new Error("Email delivery is not configured");
 }

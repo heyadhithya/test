@@ -23,7 +23,7 @@ const searchParamsSchema = z.object({
     page: z.preprocess(
         (val) => {
             if (val === "" || val === null || val === undefined) return undefined;
-            const parsed = parseInt(String(val, 10), 10);
+            const parsed = parseInt(String(val), 10);
             return isNaN(parsed) ? undefined : parsed;
         },
         z.number().int().positive().optional()
@@ -39,6 +39,7 @@ const searchParamsSchema = z.object({
 });
 
 export async function GET(req: NextRequest, context: { params: Promise<{ batchId: string }> }) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

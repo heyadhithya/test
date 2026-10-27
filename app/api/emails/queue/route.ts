@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
         await prisma.certificate.updateMany({
             where: {
                 certificateId: { in: selectedCertificateIds },
+                userId: session.user.id,
                 recipientEmail: { not: null },
             },
             data: {

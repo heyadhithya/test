@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
                 <p className="text-sm text-[var(--color-neon-muted)] border-b border-[var(--color-neon-border)] pb-6 mb-2">Last Updated: October 2023</p>
 
                 <div className="prose prose-invert max-w-none text-gray-300 space-y-6">
-                    <p>Welcome to Vura. This Privacy Policy describes how we collect, use, and handle your personal information when you use our website, products, and services.</p>
+                    <p>Welcome to Sairam Certify. This Privacy Policy describes how we collect, use, and handle your personal information when you use our website, products, and services.</p>
 
                     <h2 className="text-xl font-semibold text-white mt-8 mb-4">1. Information We Collect</h2>
                     <p>When you register for an account, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number. We also securely process files you upload (like PDF templates and Excel spreadsheets) exclusively for the purpose of generating your certificates.</p>

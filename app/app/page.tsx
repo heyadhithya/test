@@ -35,19 +35,19 @@ const EMAIL_TEMPLATES = {
     label: "Formal",
     subject: "Your certificate is ready",
     body:
-      "Dear {name},\n\nYour certificate has been generated successfully. Please find your verification link below.\n\nRegards,\nVura Team",
+      "Dear {name},\n\nYour certificate has been generated successfully. Please find your verification link below.\n\nRegards,\nSairam Certify Team",
   },
   friendly: {
     label: "Friendly",
     subject: "Good news! Your certificate is ready",
     body:
-      "Hi {name},\n\nYour certificate is ready and waiting for you. We’ve attached your verification link below.\n\nBest wishes,\nThe Vura Team",
+      "Hi {name},\n\nYour certificate is ready and waiting for you. We’ve attached your verification link below.\n\nBest wishes,\nThe Sairam Certify Team",
   },
   short: {
     label: "Short",
     subject: "Certificate ready",
     body:
-      "Hi {name},\n\nYour certificate is ready. Use the verification link below to view it.\n\nThanks,\nVura",
+      "Hi {name},\n\nYour certificate is ready. Use the verification link below to view it.\n\nThanks,\nSairam Certify",
   },
 } as const;
 
@@ -407,10 +407,11 @@ const [previewLoading, setPreviewLoading] = useState(false);
           // Try fetch S3 URL
           try {
             const response = await fetch(cert.pdfUrl);
-            const blob = await response.blob();
+            if (!response.ok || !response.headers.get("content-type")?.includes("application/pdf")) throw new Error("PDF download failed; archive cancelled.");
+        const blob = await response.blob();
             zip.file(fileName, blob);
           } catch (err) {
-            console.error(`Failed to fetch ${cert.pdfUrl}`, err);
+            throw err;
           }
         }
       });
@@ -420,7 +421,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(zipContent);
-      link.download = `Vura_Certificates_${Date.now()}.zip`;
+      link.download = `Sairam Certify_Certificates_${Date.now()}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -445,13 +446,13 @@ const [previewLoading, setPreviewLoading] = useState(false);
             className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-white shrink-0 whitespace-nowrap w-fit"
           >
             <Image
-              src="/vuralogo.png"
-              alt="Vura Logo"
+              src="/sairam-mark.svg"
+              alt="Sairam Certify Logo"
               width={32}
               height={32}
               className="rounded-lg object-contain shrink-0"
             />
-            VURA
+            SAIRAM CERTIFY
           </Link>
           <div className="flex w-full flex-wrap items-stretch gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end sm:gap-3">
             <Link
@@ -490,7 +491,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
           </h1>
           <p className="text-[var(--color-neon-muted)] mb-8 text-center max-w-2xl mx-auto">
             Upload your base PDF template and an Excel or CSV mapping file to
-            create and deploy verifiable certificates in bulk.
+            prepare certificates in bulk. Guest downloads are unverified.
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -575,7 +576,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
                   <div className="relative border-2 border-[var(--color-neon-border)] rounded-xl overflow-hidden bg-black/50 flex flex-1 items-center justify-center p-4">
                     <div
-                      className={`relative transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                      className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
                       onClick={handlePdfClick}
                       onMouseMove={(e) => {
                         if (draggingTarget) {
@@ -1276,7 +1277,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
                     {!saveToDb && (
                       <p className="text-xs text-yellow-400 mt-2">
                         {status === "unauthenticated"
-                          ? "Log in to enable saving securely to the gallery and QR verification."
+                          ? "Guest PDFs are unverified. Registry setup is pending; saving and QR verification are unavailable."
                           : "Database saving disabled. Documents won't appear in gallery. QR Verification is turned off."}
                       </p>
                     )}
@@ -1364,9 +1365,9 @@ const [previewLoading, setPreviewLoading] = useState(false);
               {certificates.map((cert) => (
                 <div
                   key={cert.certificateId}
-                  className="glass-card flex flex-col p-5 hover:border-[var(--color-neon-primary)] transition-colors group"
+                  className="glass-card min-w-0 flex flex-col p-5 hover:border-[var(--color-neon-primary)] transition-colors group"
                 >
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-wrap gap-3 justify-between items-start mb-4">
                     <div>
                       <h3 className="font-semibold text-lg">{cert.name}</h3>
                       <p className="text-[var(--color-neon-muted)] text-sm">
@@ -1380,20 +1381,21 @@ const [previewLoading, setPreviewLoading] = useState(false);
                   <div className="flex gap-3 mt-auto pt-2">
                     <a
                       href={cert.pdfUrl}
+                      download={`${cert.certificateId}.pdf`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs bg-[var(--color-neon-surface-hover)] border border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)] px-3 py-2 rounded-lg flex-1 text-center transition-colors"
                     >
-                      View PDF
+                      Download PDF
                     </a>
-                    <a
+                    {saveToDb ? <a
                       href={`/verify/${cert.certificateId}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs bg-[var(--color-neon-primary)] text-black font-semibold hover:bg-[#00ffaa] flex-1 px-3 py-2 rounded-lg text-center transition-colors"
                     >
                       Verify Page
-                    </a>
+                    </a> : <span className="text-xs p-2">Guest PDF · Unverified</span>}
                   </div>
                 </div>
               ))}
@@ -1449,7 +1451,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
 
             <div className="flex-1 overflow-auto flex items-center justify-center p-8">
               <div
-                className={`relative transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
+                className={`relative w-full min-w-0 transition-all duration-300 ${activeTarget ? "cursor-crosshair ring-2 ring-[var(--color-neon-primary)] ring-offset-2 ring-offset-black" : ""}`}
                 onClick={handlePdfClick}
                 onMouseMove={(e) => {
                   if (draggingTarget) {
@@ -1588,122 +1590,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="relative bg-[#02040A] pt-16 pb-8 px-6 border-t border-[var(--color-neon-border)]/50 mt-20 w-full z-10">
-        {/* Subtle top glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-neon-primary)]/20 to-transparent" />
-
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 mb-16">
-            <div className="col-span-2 flex flex-col items-start">
-              <Link
-                href="/"
-                className="flex items-center gap-2 mb-6 w-fit group"
-              >
-                <Image
-                  src="/vuralogo.png"
-                  alt="Vura Logo"
-                  width={32}
-                  height={32}
-                  className="object-contain transition-transform group-hover:scale-110"
-                />
-                <span className="text-lg font-bold tracking-widest uppercase text-white">
-                  Vura
-                </span>
-              </Link>
-              <p className="text-[13px] text-[var(--color-neon-muted)] leading-relaxed max-w-xs mb-6">
-                The modern certificate generation platform for educators,
-                trainers, and startup events.
-              </p>
-              <div className="flex items-center gap-4">
-                {[
-                  { icon: Github, href: "https://github.com/omn7/Vura" },
-                  { icon: X, href: "https://x.com/mr_codex" },
-                  {
-                    icon: Linkedin,
-                    href: "https://linkedin.com/in/omnarkhede/",
-                  },
-                  { icon: Mail, href: "mailto:dev.om@outlook.com" },
-                ].map(({ icon: Icon, href }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#888] hover:text-[#00e599] transition-colors"
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div className="col-span-1">
-              <p className="text-xs font-semibold text-white uppercase tracking-wider mb-5">
-                Product
-              </p>
-              <ul className="flex flex-col gap-3.5">
-                {[
-                  ["Features", "/#features"],
-                  ["How It Works", "/#how-it-works"],
-                  ["Dashboard", "/dashboard"],
-                  ["API Docs", "/docs"],
-                ].map(([label, href]) => (
-                  <li key={label}>
-                    <a
-                      href={href}
-                      className="text-[13px] text-[#888] hover:text-white transition-colors"
-                    >
-                      {label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="col-span-1">
-              <p className="text-xs font-semibold text-white uppercase tracking-wider mb-5">
-                Company
-              </p>
-              <ul className="flex flex-col gap-3.5">
-                {[
-                  ["About", "/about"],
-                  ["Privacy Policy", "/privacy"],
-                  ["Terms of Service", "/terms"],
-                  ["Contact", "mailto:dev.om@outlook.com"],
-                ].map(([label, href]) => (
-                  <li key={label}>
-                    <a
-                      href={href}
-                      className="text-[13px] text-[#888] hover:text-white transition-colors"
-                    >
-                      {label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[12px] text-[#666]">
-              © {new Date().getFullYear()}{" "}
-              <a
-                href="https://omnarkhede.tech"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white transition-colors"
-              >
-                Om Narkhede
-              </a>
-              . All rights reserved.
-            </p>
-            <div className="flex items-center gap-2 text-[12px] text-[#666]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#00e599] animate-pulse" />
-              All systems operational
-            </div>
-          </div>
-        </div>
-      </footer>
+      <footer className="p-8 text-center text-sm">Built by Aditya.com · <a href="https://wa.me/917305480362">WhatsApp</a></footer>
     </div>
   );
 }

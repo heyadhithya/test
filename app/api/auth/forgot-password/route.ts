@@ -5,8 +5,8 @@ import { sendPasswordResetEmail } from "@/lib/certificateEmail";
 import { forgotPasswordSchema } from "@/lib/validations";
 
 if (process.env.NODE_ENV === "production") {
-    process.env.NEXTAUTH_URL = "https://vurakit.in";
-    process.env.NEXT_PUBLIC_BASE_URL = "https://vurakit.in";
+    // Deployment origin must be explicitly configured.
+    process.env.NEXT_PUBLIC_BASE_URL = "http://localhost:3000";
 }
 import {
     AUTH_RATE_LIMIT_MESSAGE,
@@ -17,6 +17,7 @@ import {
 } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     try {
         const body = await req.json();
         const rateLimitKey = getRateLimitKey(

@@ -1,0 +1,88 @@
+
+> sairam-ecosystem-certifications@0.1.0 build
+> prisma generate && next build
+
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 80ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 9.0s
+  Running TypeScript ...
+  Collecting page data using 4 workers ...
+  Generating static pages using 4 workers (0/30) ...
+  Generating static pages using 4 workers (7/30) 
+  Generating static pages using 4 workers (14/30) 
+  Generating static pages using 4 workers (22/30) 
+✓ Generating static pages using 4 workers (30/30) in 248.0ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ƒ /admin
+├ ƒ /admin/certificates
+├ ○ /admin/login
+├ ƒ /admin/system
+├ ƒ /admin/users
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/auth/forgot-password
+├ ƒ /api/auth/register
+├ ƒ /api/auth/reset-password
+├ ƒ /api/batches/[batchId]/certificates
+├ ƒ /api/certificates
+├ ƒ /api/certificates/[id]
+├ ƒ /api/certificates/[id]/retry
+├ ƒ /api/certificates/create
+├ ƒ /api/emails/queue
+├ ƒ /api/emails/send
+├ ƒ /api/emails/verify-session
+├ ƒ /api/generate
+├ ƒ /api/private-pdf/[id]
+├ ƒ /api/templates
+├ ƒ /api/templates/[eventId]
+├ ƒ /api/user/api-key
+├ ƒ /api/verify/[id]
+├ ○ /app
+├ ○ /app/compose
+├ ○ /contributor
+├ ƒ /dashboard
+├ ƒ /dashboard/api-key
+├ ƒ /dashboard/batches/[batchId]
+├ ƒ /dashboard/deliveries
+├ ƒ /dashboard/profile
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/templates
+├ ƒ /dashboard/templates/new/[eventId]
+├ ƒ /dashboard/usage
+├ ƒ /dashboard/verify
+├ ○ /docs
+├ ○ /forgot-password
+├ ○ /login
+├ ○ /privacy
+├ ○ /register
+├ ƒ /reset-password/[token]
+├ ○ /robots.txt
+├ ○ /sitemap.xml
+├ ○ /sponsor
+├ ○ /terms
+└ ƒ /verify/[id]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

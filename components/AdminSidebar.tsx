@@ -36,9 +36,9 @@ export default function AdminSidebar({ user }: Props) {
             {/* Logo */}
             <div className="px-6 py-5 border-b border-[var(--color-neon-border)] flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <img src="/vuralogo.png" alt="Vura Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
+                    <img src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-10 h-10 object-contain transition-transform group-hover:scale-105" />
                     <div className="flex flex-col">
-                        <span className="text-lg font-black tracking-widest uppercase text-white leading-none">VURA</span>
+                        <span className="text-lg font-black tracking-widest uppercase text-white leading-none">SAIRAM CERTIFY</span>
                         <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest leading-none mt-1">ADMIN</span>
                     </div>
                 </Link>

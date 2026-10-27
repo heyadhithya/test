@@ -125,7 +125,7 @@ const TABS = [
                 </div>
                 <div className="text-lg font-bold text-white mb-1">Cryptographically Valid</div>
                 <div className="text-xs text-white/60 leading-relaxed">
-                    Authenticity confirmed on Vura's secure ledger.
+                    Authenticity confirmed on Sairam Certify's secure ledger.
                 </div>
                 <div className="mt-5 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
                     <Fingerprint className="w-3 h-3 text-amber-500" />
@@ -205,8 +205,8 @@ export default function InteractiveShowcase() {
             {/* Center Vertical Nav Pill -> Horizontal on mobile */}
             <div className="relative z-20 w-[95%] sm:w-auto flex flex-row lg:flex-col items-center gap-2 bg-[rgba(20,20,20,0.6)] backdrop-blur-xl border border-white/10 rounded-full lg:rounded-[2rem] p-2 lg:py-3 shadow-2xl overflow-x-auto no-scrollbar">
 
-                {/* Vura Logo at Top */}
-                <img src="/vuralogo.png" alt="Vura Logo" className="w-12 h-12 object-contain shrink-0 lg:mb-2 lg:mt-1 hover:scale-105 transition-transform" />
+                {/* Sairam Certify Logo at Top */}
+                <img src="/sairam-mark.svg" alt="Sairam Certify Logo" className="w-12 h-12 object-contain shrink-0 lg:mb-2 lg:mt-1 hover:scale-105 transition-transform" />
 
                 <div className="hidden lg:block w-6 h-[1px] bg-white/10 lg:mb-2" />
                 <div className="lg:hidden h-6 w-[1px] bg-white/10 mx-1 shrink-0" />

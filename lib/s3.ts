@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
-import { v4 as uuidv4 } from 'uuid'; // Import UUID generator for secure file naming
+import { randomUUID as uuidv4 } from 'node:crypto'; // Import UUID generator for secure file naming
 import path from 'path'; // Import path for file extension handling
 
 const s3Client = new S3Client({

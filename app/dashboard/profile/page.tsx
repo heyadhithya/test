@@ -29,7 +29,7 @@ export default async function ProfilePage() {
         <div className="space-y-8 max-w-xl">
             <div>
                 <h1 className="text-2xl font-bold text-white">Profile</h1>
-                <p className="text-sm text-[var(--color-neon-muted)] mt-1">Your Vura account information.</p>
+                <p className="text-sm text-[var(--color-neon-muted)] mt-1">Your Sairam Certify account information.</p>
             </div>
 
             <div className="glass-card p-6 space-y-6">
@@ -44,7 +44,7 @@ export default async function ProfilePage() {
                     )}
                     <div>
                         <p className="text-xl font-bold text-white">{user.name ?? "Unnamed User"}</p>
-                        <p className="text-sm text-[var(--color-neon-muted)]">Vura Member</p>
+                        <p className="text-sm text-[var(--color-neon-muted)]">Sairam Certify Member</p>
                     </div>
                 </div>
 

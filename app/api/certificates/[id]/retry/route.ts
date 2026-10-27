@@ -13,6 +13,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -36,7 +36,7 @@ type Certificate = {
 
 const THEMES = [
     { value: "formal", label: "Formal/Professional", desc: "Clean corporate style with dark gray accents" },
-    { value: "modern", label: "Vura Neon", desc: "Premium dark mode with neon emerald highlights" },
+    { value: "modern", label: "Sairam Certify Neon", desc: "Premium dark mode with neon emerald highlights" },
     { value: "minimalist", label: "Minimalist", desc: "Pure black and white text with crisp typography" }
 ];
 
@@ -58,7 +58,7 @@ function ComposeContent() {
     // Form State
     const [subject, setSubject] = useState("Your certificate for {course} is ready");
     const [cc, setCc] = useState("");
-    const [body, setBody] = useState("Hello {name},\n\nCongratulations! Your certificate for completing {course} has been successfully generated.\n\nYou can view and verify your certificate here: {verifyUrl}\n\nThank you,\nThe Vura Team");
+    const [body, setBody] = useState("Hello {name},\n\nCongratulations! Your certificate for completing {course} has been successfully generated.\n\nYou can view and verify your certificate here: {verifyUrl}\n\nThank you,\nThe Sairam Certify Team");
     const [selectedTheme, setSelectedTheme] = useState("formal");
     const [selectedCertIds, setSelectedCertIds] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -199,7 +199,7 @@ function ComposeContent() {
     }, [certificates]);
 
     const livePreviewHtml = useMemo(() => {
-        const mockVerifyUrl = `https://vura.dev/verify/${sampleCert.certificateId}`;
+        const mockVerifyUrl = `http://localhost:3000/verify/${sampleCert.certificateId}`;
         const data = {
             name: sampleCert.name,
             course: sampleCert.course,
@@ -220,7 +220,7 @@ function ComposeContent() {
         if (selectedTheme === "modern") {
             return `
                 <div style="background-color:#0b0f19;padding:24px;border-radius:12px;border:1px solid rgba(0,229,153,0.15);color:#ffffff;font-family:-apple-system,sans-serif;box-shadow:0 10px 20px rgba(0,0,0,0.4);">
-                    <div style="font-weight:900;letter-spacing:1px;color:#00e599;margin-bottom:16px;font-size:18px;">VURA</div>
+                    <div style="font-weight:900;letter-spacing:1px;color:#00e599;margin-bottom:16px;font-size:18px;">SAIRAM CERTIFY</div>
                     <h2 style="margin:0 0 12px;font-size:18px;color:#ffffff;">Your Certificate is Ready!</h2>
                     <p style="color:#9ca3af;font-size:13px;line-height:1.5;margin-bottom:20px;">${finalBodyText}</p>
                     <div style="margin-bottom:20px;">
@@ -236,7 +236,7 @@ function ComposeContent() {
         if (selectedTheme === "minimalist") {
             return `
                 <div style="background-color:#ffffff;padding:24px;color:#111111;font-family:-apple-system,sans-serif;border:1px solid #eeeeee;border-radius:12px;">
-                    <div style="font-weight:800;letter-spacing:0.5px;color:#000000;margin-bottom:24px;font-size:16px;">VURA</div>
+                    <div style="font-weight:800;letter-spacing:0.5px;color:#000000;margin-bottom:24px;font-size:16px;">SAIRAM CERTIFY</div>
                     <h2 style="font-weight:400;font-size:20px;margin-bottom:16px;color:#000000;">Certificate Available</h2>
                     <p style="font-size:13px;line-height:1.6;color:#333333;margin-bottom:24px;">${finalBodyText}</p>
                     <div style="margin-bottom:24px;">
@@ -252,7 +252,7 @@ function ComposeContent() {
         // Default formal
         return `
             <div style="background-color:#ffffff;padding:24px;border-top:4px solid #111827;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.03);color:#1f2937;font-family:sans-serif;border-left:1px solid #eeeeee;border-right:1px solid #eeeeee;border-bottom:1px solid #eeeeee;">
-                <div style="font-weight:bold;color:#111827;margin-bottom:16px;font-size:16px;letter-spacing:0.5px;">VURA</div>
+                <div style="font-weight:bold;color:#111827;margin-bottom:16px;font-size:16px;letter-spacing:0.5px;">SAIRAM CERTIFY</div>
                 <h2 style="margin:0 0 12px;font-size:18px;color:#111827;font-weight:700;">Certificate Issuance Notification</h2>
                 <p style="color:#4b5563;font-size:13px;line-height:1.5;margin-bottom:20px;">${finalBodyText}</p>
                 <div style="margin-bottom:20px;">
@@ -726,13 +726,13 @@ export default function ComposePage() {
                         className="text-xl font-black tracking-widest uppercase inline-flex items-center gap-2 text-white shrink-0 whitespace-nowrap w-fit"
                     >
                         <Image
-                            src="/vuralogo.png"
-                            alt="Vura Logo"
+                            src="/sairam-mark.svg"
+                            alt="Sairam Certify Logo"
                             width={32}
                             height={32}
                             className="rounded-lg object-contain shrink-0"
                         />
-                        VURA
+                        SAIRAM CERTIFY
                     </Link>
                     <div className="flex w-full flex-wrap items-stretch gap-2 sm:w-auto sm:flex-nowrap sm:items-center sm:justify-end sm:gap-3">
                         <Link

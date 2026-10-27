@@ -11,6 +11,7 @@ import {
 } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     try {
         const body = await req.json();
 

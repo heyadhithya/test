@@ -9,23 +9,23 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Core */
-  --color-neon-bg: #030303;
-  --color-neon-primary: #00e599;
+  --color-neon-bg: #101d2b;
+  --color-neon-primary: #c9ae73;
   --color-neon-secondary: #007acc;
   --color-neon-purple: #9d4edd;
-  --color-neon-surface: #0a0a0a;
+  --color-neon-surface: #152536;
   --color-neon-surface-hover: #141414;
   --color-neon-border: #222222;
   --color-neon-text: #eaeaea;
-  --color-neon-muted: #666666;
+  --color-neon-muted: #a5b3c2;
 
   /* Aliases for components */
-  --color-primary: #00e599;
+  --color-primary: #c9ae73;
   --color-secondary: #007acc;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --color-surface: #0a0a0a;
+  --color-surface: #152536;
   --color-surface-2: #111111;
   --color-border: #222222;
 }
@@ -257,7 +257,7 @@
   @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold;
   background: rgba(0, 229, 153, 0.12);
   border: 1px solid rgba(0, 229, 153, 0.35);
-  color: #00e599;
+  color: #c9ae73;
   box-shadow: 0 0 16px rgba(0, 229, 153, 0.15);
 }
 
@@ -761,3 +761,8 @@
     }
 
   
+
+.institutional{background:#f7f6f2;color:#17354a;min-height:100vh;font-family:Arial,sans-serif;padding:0 max(24px,calc((100vw - 1120px)/2));}
+.institutional header,.institutional footer{display:flex;justify-content:space-between;align-items:center;padding:28px 0;gap:20px;border-bottom:1px solid #d1d7d9}.brand{font-size:22px;font-weight:700}.intro{padding:80px 0 64px;max-width:850px}.eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:12px;font-weight:700}.intro h1{font-family:Georgia,serif;font-size:clamp(42px,6vw,76px);line-height:1.08;letter-spacing:-.035em;margin:25px 0}.lead{font-size:20px;line-height:1.65;max-width:650px;color:#506270}.start{display:inline-flex;gap:45px;background:#183b56;color:white;padding:17px 24px;margin-top:30px;border-radius:4px;font-weight:600}.note{font-size:13px;margin-top:20px;color:#526574}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;border-top:1px solid #cdd4d8;padding:38px 0}.steps span{font-size:13px;color:#657681}.steps h2{font-size:20px;margin:12px 0}.steps p{line-height:1.7;color:#526574}.institutional aside{border-left:3px solid #a48b58;padding:16px 22px;background:#eeede6;line-height:1.7;margin:15px 0 45px}.institutional footer{font-size:13px;border-top:1px solid #d1d7d9;border-bottom:0}a:focus-visible,button:focus-visible{outline:3px solid #bd9855;outline-offset:5px}@media(max-width:640px){.intro{padding-top:50px}.steps{grid-template-columns:1fr;gap:25px}.lead{font-size:18px}.institutional header{padding:22px 0}.brand{font-size:19px}}
+
+.react-pdf__Document,.react-pdf__Page{max-width:100%;width:100%}.react-pdf__Page canvas{width:100% !important;height:auto !important}

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 async function getVisitorCount(): Promise<number> {
     try {
-        const response = await fetch("https://api.visitorbadge.io/api/visitors?path=omn7.Vura", {
+        const response = await fetch("https://api.visitorbadge.io/api/visitors?path=omn7.Sairam Certify", {
             next: { revalidate: 300 } // Cache for 5 minutes
         });
         if (!response.ok) return 232;
@@ -112,7 +112,7 @@ export default async function AdminOverviewPage() {
                     <span className="section-label mb-2">Platform Overview</span>
                     <h1 className="text-4xl font-extrabold text-white tracking-tight">Database Statistics</h1>
                     <p className="text-[var(--color-neon-muted)] text-sm mt-1">
-                        Real-time analytics and activity monitoring for Vura core engines.
+                        Real-time analytics and activity monitoring for Sairam Certify core engines.
                     </p>
                 </div>
                 <div className="text-xs px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 font-mono flex items-center gap-2">
@@ -167,7 +167,7 @@ export default async function AdminOverviewPage() {
                     </div>
                     <div className="mt-4 pt-4 border-t border-[var(--color-neon-border)] flex items-center justify-between text-xs">
                         <span className="text-[var(--color-neon-muted)]">Active designs</span>
-                        <span className="text-blue-400">Vura Engine</span>
+                        <span className="text-blue-400">Sairam Certify Engine</span>
                     </div>
                 </div>
 
@@ -345,5 +345,3 @@ export default async function AdminOverviewPage() {
         </div>
     );
 }
-
-.catch(err => console.error("Promise.all failed:", err));

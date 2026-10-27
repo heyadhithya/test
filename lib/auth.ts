@@ -7,9 +7,7 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { loginSchema } from "@/lib/validations";
 
-if (process.env.NODE_ENV === "production") {
-    process.env.NEXTAUTH_URL = "https://vurakit.in";
-}
+
 
 import {
     clearFailedAttempts,
@@ -137,7 +135,7 @@ export const authOptions: NextAuthOptions = {
 
         // Custom redirect for errors to ensure generic messages
         async redirect({ url, baseUrl }: any) {
-            if (url.startsWith(baseUrl)) return url;
+            if (new URL(url, baseUrl).origin === new URL(baseUrl).origin) return new URL(url, baseUrl).href;
             // Allows relative callback URLs
             else if (url.startsWith('/')) return `${baseUrl}${url}`;
             // Handle other external URLs or malicious attempts. Consider redirecting to a generic error page or login.

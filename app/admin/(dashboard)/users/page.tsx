@@ -71,7 +71,7 @@ export default async function AdminUsersPage(props: PageProps) {
                     <h3 className="text-3xl font-extrabold text-[var(--color-neon-primary)] mt-1">
                         {await prisma.user.count({ where: { apiKey: { not: null } } })}
                     </h3>
-                    <p className="text-[10px] text-[var(--color-neon-muted)] mt-2">Developers integrated with Vura API</p>
+                    <p className="text-[10px] text-[var(--color-neon-muted)] mt-2">Developers integrated with Sairam Certify API</p>
                 </div>
                 <div className="metric-card">
                     <p className="text-xs font-bold text-[var(--color-neon-muted)] uppercase tracking-wider">Search Matches</p>

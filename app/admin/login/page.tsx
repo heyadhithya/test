@@ -77,8 +77,8 @@ export default function AdminLoginPage() {
 
             <div className="w-full max-w-md glass-card p-10 flex flex-col items-center text-center relative z-10 shadow-2xl border-red-500/10 hover:border-red-500/20 transition-all duration-300">
                 <Link href="/" className="text-[var(--color-neon-primary)] font-bold text-2xl mb-8 tracking-widest uppercase flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <Image src="/vuralogo.png" alt="Vura Logo" width={32} height={32} className="rounded-lg object-contain" />
-                    Vura
+                    <Image src="/sairam-mark.svg" alt="Sairam Certify Logo" width={32} height={32} className="rounded-lg object-contain" />
+                    Sairam Certify
                 </Link>
 
                 {step === "credentials" ? (
@@ -183,7 +183,7 @@ export default function AdminLoginPage() {
                 )}
 
                 <p className="text-[var(--color-neon-muted)] text-[10px] mt-6">
-                    Return to <Link href="/" className="text-[var(--color-neon-primary)] hover:underline">Vura Home</Link>
+                    Return to <Link href="/" className="text-[var(--color-neon-primary)] hover:underline">Sairam Certify Home</Link>
                 </p>
             </div>
         </main>

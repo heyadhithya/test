@@ -1,0 +1,1 @@
+PASS: desktop/mobile, template field edit, XLSX and CSV import, preview, 2 guest PDFs, individual PDF download, 2-file ZIP, guest verification links absent.

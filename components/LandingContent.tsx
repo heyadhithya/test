@@ -92,13 +92,13 @@ const REVIEWS = [
     name: "Shivam Murkute",
     role: "Event Organizer",
     rating: 5,
-    text: "Vura saved us countless hours during our last hackathon. Generating 500+ certificates took literally 2 seconds instead of a whole weekend. Incredibly reliable.",
+    text: "Sairam Certify saved us countless hours during our last hackathon. Generating 500+ certificates took literally 2 seconds instead of a whole weekend. Incredibly reliable.",
   },
   {
     name: "Swayam Polakhare",
     role: "Tech Lead",
     rating: 4.5,
-    text: "The API integration is flawless. We plugged Vura directly into our internal LMS, and now every student receives a verifiable PDF the moment they finish a course.",
+    text: "The API integration is flawless. We plugged Sairam Certify directly into our internal LMS, and now every student receives a verifiable PDF the moment they finish a course.",
   },
   {
     name: "Swaraj Singh",
@@ -122,7 +122,7 @@ const REVIEWS = [
     name: "Karan Sathe",
     role: "Startup Founder",
     rating: 5,
-    text: "We needed a robust way to issue early-adopter certificates. Vura's AWS-backed storage and unique IDs gave us exactly the security and scale we required.",
+    text: "We needed a robust way to issue early-adopter certificates. Sairam Certify's AWS-backed storage and unique IDs gave us exactly the security and scale we required.",
   },
 ];
 
@@ -131,7 +131,7 @@ const STEPS = [
     n: "01",
     icon: User,
     title: "Create Account",
-    desc: "Sign up and secure your API keys to get started with Vura.",
+    desc: "Sign up and secure your API keys to get started with Sairam Certify.",
   },
   {
     n: "02",
@@ -149,7 +149,7 @@ const STEPS = [
     n: "04",
     icon: Sparkles,
     title: "Generate & Share",
-    desc: "Click Generate. Vura builds, uploads to S3, and returns direct PDF + verify links instantly.",
+    desc: "Click Generate. Sairam Certify builds, uploads to S3, and returns direct PDF + verify links instantly.",
   },
 ];
 
@@ -227,12 +227,12 @@ export default function LandingContent({ session }: { session: any }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2 group shrink-0">
             <img
-              src="/vuralogo.png"
-              alt="Vura Logo"
+              src="/sairam-mark.svg"
+              alt="Sairam Certify Logo"
               className="w-10 h-10 object-contain transition-transform group-hover:scale-105"
             />
             <span className="text-xl font-black tracking-widest uppercase text-white hidden sm:inline">
-              VURA
+              SAIRAM CERTIFY
             </span>
           </Link>
 
@@ -317,7 +317,7 @@ export default function LandingContent({ session }: { session: any }) {
               </AnimatePresence>
             </div>
             <a
-              href="https://github.com/omn7/Vura"
+              href="https://github.com/omn7/Sairam Certify"
               target="_blank"
               rel="noreferrer"
               className="hidden md:flex items-center gap-2 text-sm text-[var(--color-neon-muted)] hover:text-white transition-colors border-r border-[var(--color-neon-border)] pr-4"
@@ -540,11 +540,11 @@ export default function LandingContent({ session }: { session: any }) {
                   href={session ? "/app" : "/register"}
                   className="relative inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-[var(--color-neon-primary)] bg-transparent border border-[var(--color-neon-primary)] rounded-full hover:bg-[var(--color-neon-primary)]/10 hover:shadow-[0_0_20px_rgba(0,229,153,0.35)] hover:-translate-y-0.5 transition-all duration-300 group gap-2"
                 >
-                  Explore Vura{" "}
+                  Explore Sairam Certify{" "}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <a
-                  href="https://github.com/omn7/Vura"
+                  href="https://github.com/omn7/Sairam Certify"
                   target="_blank"
                   rel="noreferrer"
                   className="relative inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold text-[var(--color-neon-primary)] bg-transparent border border-[var(--color-neon-primary)] rounded-full hover:bg-[var(--color-neon-primary)]/10 hover:shadow-[0_0_20px_rgba(0,229,153,0.35)] hover:-translate-y-0.5 transition-all duration-300 gap-2"
@@ -585,7 +585,7 @@ export default function LandingContent({ session }: { session: any }) {
           <div className="relative z-10 max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
               { value: "500+", label: "Certificates Generated" },
-              { value: "20+", label: "Organizations Using Vura" },
+              { value: "20+", label: "Organizations Using Sairam Certify" },
               { value: "99.9%", label: "Uptime SLA" },
               { value: "<2s", label: "Avg Generation Time" },
             ].map((s, i) => (
@@ -1059,7 +1059,7 @@ export default function LandingContent({ session }: { session: any }) {
               </h2>
               <p className="text-[var(--color-neon-muted)] mb-10 text-lg md:text-xl max-w-xl mx-auto">
                 Join educators and event organizers saving hours each month with
-                Vura.
+                Sairam Certify.
               </p>
               <div className="flex flex-col items-center justify-center gap-4">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -1098,16 +1098,16 @@ export default function LandingContent({ session }: { session: any }) {
             <div className="col-span-2 flex flex-col items-start">
               <Link
                 href="/"
-                aria-label="Vura home"
+                aria-label="Sairam Certify home"
                 className="flex items-center gap-2 mb-6 w-fit group cursor-pointer"
               >
                 <img
-                  src="/vuralogo.png"
-                  alt="Vura Logo"
+                  src="/sairam-mark.svg"
+                  alt="Sairam Certify Logo"
                   className="w-8 h-8 object-contain transition-transform group-hover:scale-110"
                 />
                 <span className="text-lg font-bold tracking-widest uppercase text-white">
-                  Vura
+                  Sairam Certify
                 </span>
               </Link>
               <p className="text-[13px] text-[var(--color-neon-muted)] leading-relaxed max-w-xs mb-6">
@@ -1116,7 +1116,7 @@ export default function LandingContent({ session }: { session: any }) {
               </p>
               <div className="flex items-center gap-4">
                 {[
-                  { icon: Github, href: "https://github.com/omn7/Vura" },
+                  { icon: Github, href: "https://github.com/omn7/Sairam Certify" },
                   { icon: X, href: "https://x.com/mr_codex" },
                   {
                     icon: Linkedin,

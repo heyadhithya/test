@@ -1,7 +1,7 @@
 import DeliveriesDashboard from "@/components/DeliveriesDashboard";
 
 export const metadata = {
-    title: "Delivery Dashboard | Vura",
+    title: "Delivery Dashboard | Sairam Certify",
     description: "Track delivery status, monitor failures, and retry sending certificates.",
 };
 

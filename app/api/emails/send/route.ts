@@ -7,6 +7,7 @@ import { sendCertificateEmail } from "@/lib/certificateEmail";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {

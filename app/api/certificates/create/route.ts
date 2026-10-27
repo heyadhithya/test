@@ -25,6 +25,7 @@ function generateCertId(): string {
 }
 
 export async function POST(req: NextRequest) {
+    if (process.env.PERSISTENCE_ENABLED !== "true") return new Response(JSON.stringify({error: "Persistent services are not configured for this isolated project."}), {status: 503, headers: {"Content-Type": "application/json"}});
     // ── 1. Authenticate via API key ──────────────────────────────────────
     const authHeader = req.headers.get("Authorization") ?? "";
     const apiKey = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";

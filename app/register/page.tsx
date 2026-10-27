@@ -127,13 +127,13 @@ export default function RegisterPage() {
                     className="text-[var(--color-neon-primary)] font-bold text-2xl mb-8 tracking-widest uppercase flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                     <Image
-                        src="/vuralogo.png"
-                        alt="Vura Logo"
+                        src="/sairam-mark.svg"
+                        alt="Sairam Certify Logo"
                         width={32}
                         height={32}
                         className="rounded-lg object-contain"
                     />
-                    Vura
+                    Sairam Certify
                 </Link>
 
                 <h1 className="text-3xl font-extrabold mb-2 text-white">
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                 </h1>
 
                 <p className="text-[var(--color-neon-muted)] mb-8 text-sm">
-                    Register a new Vura account to start generating.
+                    Register a new Sairam Certify account to start generating.
                 </p>
 
                 {error && (

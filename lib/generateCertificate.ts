@@ -7,6 +7,7 @@ export interface CertificateData {
     course: string;
     issueDate: string;
     certificateId: string;
+    verificationStatus?: "guest" | "issued";
 }
 
 // Define a schema for expected settings to ensure type safety and prevent malicious inputs
@@ -60,9 +61,9 @@ export async function generateCertificate(
     };
 
     // Validate and parse settings using Zod
-    const settings = certificateSettingsSchema.parse(userSettings);
+    const settings = certificateSettingsSchema.parse(userSettings ?? {});
 
-    const pdfDoc = await PDFDocument.load(templateBuffer)
+    const pdfDoc = await PDFDocument.load(templateBuffer, { updateMetadata: false })
     const pages = pdfDoc.getPages()
     const firstPage = pages[0]
 
@@ -155,6 +156,10 @@ export async function generateCertificate(
         size: 10,
         color: rgb(0.4, 0.4, 0.4),
     })
+
+    if (data.verificationStatus === "guest") {
+        firstPage.drawText("GUEST PDF - NOT A VERIFIED CREDENTIAL", {x: 20, y: 20, size: 8, color: rgb(0.35, 0.35, 0.35)});
+    }
 
     // Add QR Code
     if (settings.qrCode?.enabled !== false) { // Default is enabled

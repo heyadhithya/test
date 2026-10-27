@@ -6,7 +6,7 @@ export default function SettingsPage() {
         <div className="space-y-8 max-w-xl">
             <div>
                 <h1 className="text-2xl font-bold text-white">Settings</h1>
-                <p className="text-sm text-[var(--color-neon-muted)] mt-1">Manage your Vura account preferences.</p>
+                <p className="text-sm text-[var(--color-neon-muted)] mt-1">Manage your Sairam Certify account preferences.</p>
             </div>
 
             {/* Settings groups */}

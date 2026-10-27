@@ -73,7 +73,7 @@ export default function ApiKeyPanel() {
                 <div>
                     <h3 className="font-bold text-white text-lg mb-1">No API Key Yet</h3>
                     <p className="text-sm text-[var(--color-neon-muted)] max-w-sm">
-                        Generate a secret key to start creating certificates via the Vura API from any external system.
+                        Generate a secret key to start creating certificates via the Sairam Certify API from any external system.
                     </p>
                 </div>
 
@@ -115,7 +115,7 @@ export default function ApiKeyPanel() {
                 </div>
                 <div>
                     <h2 className="font-bold text-white">API Key</h2>
-                    <p className="text-xs text-[var(--color-neon-muted)]">Use this key to create certificates via the Vura API</p>
+                    <p className="text-xs text-[var(--color-neon-muted)]">Use this key to create certificates via the Sairam Certify API</p>
                 </div>
             </div>
 

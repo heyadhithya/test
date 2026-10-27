@@ -52,7 +52,7 @@ export default function VerifyPage() {
             <div>
                 <h1 className="text-2xl font-bold text-white">Verify a Certificate</h1>
                 <p className="text-sm text-[var(--color-neon-muted)] mt-1">
-                    Enter a certificate ID to check its authenticity against the Vura database.
+                    Enter a certificate ID to check its authenticity against the Sairam Certify database.
                 </p>
             </div>
 
