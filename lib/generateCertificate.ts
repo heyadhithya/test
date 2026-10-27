@@ -103,11 +103,11 @@ export async function generateCertificate(
         const fontSize = settings.name?.size ?? 32;
         const fontToUse = getFont(settings.name?.fontStyle ?? 'bold');
         const textWidth = fontToUse.widthOfTextAtSize(textToDraw, fontSize);
-        const startX = settings.name?.x ? getX(settings.name.x) : centerX;
+        const startX = settings.name?.x !== undefined ? getX(settings.name.x) : centerX;
 
         firstPage.drawText(textToDraw, {
             x: startX - (textWidth / 2),
-            y: settings.name?.y ? getY(settings.name.y) : height / 2 + 50,
+            y: settings.name?.y !== undefined ? getY(settings.name.y) : height / 2 + 50,
             size: fontSize,
             font: fontToUse,
             color: settings.name?.hex ? hexToRgb(settings.name.hex) : rgb(0, 0, 0),
@@ -120,11 +120,11 @@ export async function generateCertificate(
         const fontSize = settings.course?.size ?? 20;
         const fontToUse = getFont(settings.course?.fontStyle ?? 'normal');
         const textWidth = fontToUse.widthOfTextAtSize(textToDraw, fontSize);
-        const startX = settings.course?.x ? getX(settings.course.x) : centerX;
+        const startX = settings.course?.x !== undefined ? getX(settings.course.x) : centerX;
 
         firstPage.drawText(textToDraw, {
             x: startX - (textWidth / 2),
-            y: settings.course?.y ? getY(settings.course.y) : height / 2,
+            y: settings.course?.y !== undefined ? getY(settings.course.y) : height / 2,
             size: fontSize,
             font: fontToUse,
             color: settings.course?.hex ? hexToRgb(settings.course.hex) : rgb(0.2, 0.2, 0.2),
@@ -137,11 +137,11 @@ export async function generateCertificate(
         const fontSize = settings.issueDate?.size ?? 14;
         const fontToUse = getFont(settings.issueDate?.fontStyle ?? 'normal');
         const textWidth = fontToUse.widthOfTextAtSize(textToDraw, fontSize);
-        const startX = settings.issueDate?.x ? getX(settings.issueDate.x) : centerX;
+        const startX = settings.issueDate?.x !== undefined ? getX(settings.issueDate.x) : centerX;
 
         firstPage.drawText(textToDraw, { 
             x: startX - (textWidth / 2),
-            y: settings.issueDate?.y ? getY(settings.issueDate.y) : height / 2 - 40,
+            y: settings.issueDate?.y !== undefined ? getY(settings.issueDate.y) : height / 2 - 40,
             size: fontSize,
             font: fontToUse,
             color: settings.issueDate?.hex ? hexToRgb(settings.issueDate.hex) : rgb(0, 0, 0),
@@ -176,8 +176,8 @@ export async function generateCertificate(
         const qrDims = qrImage.scale(scale);
 
         // Map the center point of the graphic, offsetting by half its width/height
-        const centerXPos = settings.qrCode?.x ? getX(settings.qrCode.x) : width - qrDims.width - 50;
-        const centerYPos = settings.qrCode?.y ? getY(settings.qrCode.y) : 50;
+        const centerXPos = settings.qrCode?.x !== undefined ? getX(settings.qrCode.x) : width - qrDims.width - 50;
+        const centerYPos = settings.qrCode?.y !== undefined ? getY(settings.qrCode.y) : 50;
 
         firstPage.drawImage(qrImage, {
             x: centerXPos - (qrDims.width / 2),
