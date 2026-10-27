@@ -4,10 +4,6 @@ import crypto from "crypto";
 import { sendPasswordResetEmail } from "@/lib/certificateEmail";
 import { forgotPasswordSchema } from "@/lib/validations";
 
-if (process.env.NODE_ENV === "production") {
-    process.env.NEXTAUTH_URL = "https://vurakit.in";
-    process.env.NEXT_PUBLIC_BASE_URL = "https://vurakit.in";
-}
 import {
     AUTH_RATE_LIMIT_MESSAGE,
     getRateLimitKey,
@@ -86,7 +82,7 @@ export async function POST(req: Request) {
         } catch (mailError: any) {
             // It might fail if no valid Resend key is configured. We'll still allow the token to be set, 
             // but we can log the error or print the url for dev purposes.
-            console.error("Failed to send email. If you are in dev, here is the reset URL:", resetUrl);
+            if (process.env.NODE_ENV !== "production") console.error("Development reset URL:", resetUrl);
             console.error(mailError);
         }
 
