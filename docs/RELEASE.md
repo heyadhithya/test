@@ -17,7 +17,7 @@ The connected Supabase tools do not provide a secure server-key/database-passwor
 1. Open the new Supabase project: https://supabase.com/dashboard/project/vvucjlhjrbsxjtdcflwf . In Connect, obtain the transaction-pooler Prisma connection string with this project's password. Use the recommended Prisma pooling parameters. In API settings, obtain this project's server-only legacy service-role JWT for the current storage adapter, never an anon/publishable key.
 2. Open the new Vercel project's Settings → Environment Variables. Add Production-only sensitive variables `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, fresh independent random `NEXTAUTH_SECRET` and stable `ISSUANCE_ID_SECRET` (at least 32 characters). Never use `NEXT_PUBLIC` prefixes. Do not copy credentials from another project.
 3. Set `SUPABASE_URL=https://vvucjlhjrbsxjtdcflwf.supabase.co`, `SUPABASE_PRIVATE_BUCKET=certificates-private`, and `NEXTAUTH_URL` to the confirmed final HTTPS origin. QR links depend on this durable origin; don't change it casually.
-4. Provision the approved institutional issuer identity and set its immutable database ID in `ISSUER_USER_IDS`. Native upstream NextAuth credential login requires an intentionally provisioned hashed-password user; public registration is disabled. No issuer identity was supplied or created. Google OAuth is optional and needs separate owner grant/configuration; no OAuth grant has been made.
+4. Configure email-link authentication as detailed below; no issuer identity or provider sender has been created. After verified sign-in, separately approve its immutable database ID in `ISSUER_USER_IDS`. No password or Google provider is enabled.
 5. Leave `VERIFIED_ISSUANCE_ENABLED` unset until the live checks below pass. Leave `PERSISTENCE_ENABLED` unset: unrelated legacy routes remain blocked. Enable verified issuance only on the reviewed release after real integration testing.
 6. Email is disabled. Sender domain/DNS/provider credentials and delivery policy remain a separate approval/setup.
 
@@ -48,3 +48,17 @@ The API proxy also blocks legacy routes regardless of the legacy environment swi
 ## Resource preservation
 
 The already-existing Vercel `sairam-certify` project is not this target and must not be overwritten. The new Vercel name is `sairam-ecosystem-certifications`. Parent handles any old-hosting retirement separately; this code task has changed no old infrastructure.
+
+## Email-link implementation (configuration still pending)
+
+NextAuth now uses a single email-link provider; inactive legacy password/Google options are removed from the login UI/provider list. This retains the Prisma adapter and JWT session architecture. It does not configure Supabase Auth or add OAuth permissions.
+
+Set `AUTH_ENABLED=true` only after approved secure configuration and tests. Required Production-only settings: `DATABASE_URL`, `NEXTAUTH_URL` (exact HTTPS origin), fresh `NEXTAUTH_SECRET` (32+ characters), `AUTH_EMAIL_ALLOWLIST` (comma-separated approved addresses, maximum 100), `AUTH_EMAIL_FROM` (approved verified sender) and sensitive `AUTH_RESEND_API_KEY` (new app's approved sending credential). No recipient address is hardcoded in source. The HTTP transport is implemented for Resend but no Resend account, domain, key, permission or sender has been configured or reused. Sender/provider approval remains a gate.
+
+Auth readiness is independent of `VERIFIED_ISSUANCE_ENABLED`. Successful email verification permits a session, never automatic issuance: `ISSUER_USER_IDS` separately controls issuance by immutable database ID. No identity has been provisioned. To activate an issuer, first verify sign-in, then explicitly authorize the resulting ID. Tokens use NextAuth's random generation, hashed database persistence, atomic consumption and 15-minute expiry; CSRF handling remains in NextAuth. The login request status/body is generic, including provider failures. Synchronous transport timing may still reveal address eligibility; strict timing indistinguishability is not claimed. A durable asynchronous admission/delivery path is required if allowlist membership must be confidential. Server logs omit email/token/provider diagnostics.
+
+Per-process limits allow ten email requests per minute globally and three sends per hour per approved address, at least 60 seconds apart. These are bounded local defenses, not distributed abuse protection; configure platform/provider limits before production. Expired verification-token cleanup is also required for sustained operation. Integration tests must prove email receipt, successful callback/session, expiry/replay denial, non-issuer denial, sign-out, and subsequent real QR issuance. Mocked/unit tests do not establish live delivery.
+
+Removing an address from `AUTH_EMAIL_ALLOWLIST` stops new logins but does not revoke existing JWT sessions (NextAuth default session lifetime is 30 days). Remove the immutable ID from `ISSUER_USER_IDS` to stop further issuance immediately. Explicit session revocation/shorter-session policy requires implementation before relying on allowlist removal as account revocation.
+
+References: https://next-auth.js.org/providers/email and https://resend.com/docs/api-reference/emails/send-email . The email best-practices skill informed the transactional plain-text message and sender approval gates; it did not authorize a live send.

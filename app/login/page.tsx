@@ -1,145 +1,34 @@
 "use client";
-
-import { AlertCircle,Loader2 } from "lucide-react";
-import { signIn } from "next-auth/react";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter,useSearchParams } from "next/navigation";
-import { Suspense,useState } from "react";
-function LoginContent() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const registered = searchParams.get("registered");
-    // Sanitize authError to prevent XSS if Next.js doesn't escape it by default
-    const rawAuthError = searchParams.get("error");
-    const sanitizedAuthError = rawAuthError ? rawAuthError.replace(/[^a-zA-Z0-9]/g, "") : null;
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(
-        sanitizedAuthError === "CredentialsSignin" ? "Invalid email or password" : ""
-    );
-
-    const handleCredentialsLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-
-        try {
-            const res = await signIn("credentials", {
-                redirect: false,
-                email,
-                password,
-            });
-
-            if (res?.error) {
-                // Use a generic error message to prevent leaking specific credential validation info
-                setError("Invalid email or password");
-            } else {
-                router.push("/dashboard"); // Redirect to /dashboard after successful login
-                router.refresh();
-            }
-        } catch (opError) {
-            console.error("Login operation failed:", opError);
-            setError("An unexpected error occurred. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <main className="flex-1 flex flex-col items-center justify-center min-h-screen p-6 relative z-10 pt-20 pb-20">
-            <div className="glow-bg" style={{ top: "10%" }}></div>
-
-            <div className="w-full max-w-md glass-card p-10 flex flex-col items-center text-center relative z-10 shadow-2xl">
-                <Link href="/" className="text-[var(--color-neon-primary)] font-bold text-2xl mb-8 tracking-widest uppercase flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <Image src="/sairam-mark.svg" alt="Sairam Certify Logo" width={32} height={32} className="rounded-lg object-contain" />
-                    Sairam Certify
-                </Link>
-
-                <h1 className="text-3xl font-extrabold mb-2 text-white">Welcome Back</h1>
-                <p className="text-[var(--color-neon-muted)] mb-8 text-sm">
-                    Sign in to manage and view your generated certificates.
-                </p>
-
-                {registered && (
-                    <div className="w-full mb-6 p-4 rounded-xl bg-[#00e599]/10 border border-[#00e599]/30 flex items-start text-[#00e599]">
-                        <p className="text-sm font-semibold">Account created! Please log in below.</p>
-                    </div>
-                )}
-
-                {error && ( // Display sanitized error message
-                    <div className="w-full mb-6 p-4 rounded-xl bg-red-900/20 border border-red-500/50 flex items-start text-red-200">
-                        <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5 text-red-400" />
-                        <p className="text-sm text-left">{error}</p>
-                    </div>
-                )}
-
-                <form onSubmit={handleCredentialsLogin} className="w-full flex flex-col gap-4 mb-6">
-                    <div className="text-left">
-                        <label className="text-xs text-[var(--color-neon-muted)] ml-1">Email Address</label>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            className="w-full mt-1 bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[var(--color-neon-primary)] outline-none"
-                            placeholder="name@example.com"
-                        />
-                    </div>
-                    <div className="text-left">
-                        <div className="flex justify-between items-center ml-1">
-                            <label className="text-xs text-[var(--color-neon-muted)]">Password</label>
-                            <Link href="/forgot-password" className="text-xs text-[var(--color-neon-primary)] hover:underline mb-1">Forgot password?</Link>
-                        </div>
-                        <input
-                            type="password"
-                            required
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            className="w-full mt-1 bg-[var(--color-neon-bg)] border border-[var(--color-neon-border)] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[var(--color-neon-primary)] outline-none"
-                            placeholder="••••••••"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full btn-secondary py-3 text-white disabled:opacity-50 flex items-center justify-center mt-2 border-[var(--color-neon-border)] hover:border-[var(--color-neon-primary)]"
-                    >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In with Email"}
-                    </button>
-                </form>
-
-                <div className="w-full flex items-center gap-4 mb-6">
-                    <div className="flex-1 h-px bg-[var(--color-neon-border)]"></div>
-                    <span className="text-xs text-[var(--color-neon-muted)] uppercase tracking-wider">Or</span>
-                    <div className="flex-1 h-px bg-[var(--color-neon-border)]"></div>
-                </div>
-
-                <button
-                    onClick={() => signIn("google", { callbackUrl: "/dashboard" })} // Redirect to /dashboard after Google login
-                    className="w-full flex items-center justify-center gap-3 bg-white text-black py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors shadow-lg"
-                >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                    </svg>
-                    Continue with Google
-                </button>
-
-                <p className="text-[var(--color-neon-muted)]">Don&apos;t have an account? <Link href="/register" className="text-[var(--color-neon-primary)] hover:underline">Sign up</Link></p>
-            </div>
-        </main>
-    );
-}
+import { getProviders, signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LoginPage() {
-    return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center glow-bg"><Loader2 className="w-8 h-8 animate-spin text-[var(--color-neon-primary)]" /></div>}>
-            <LoginContent />
-        </Suspense>
-    )
+    const [email, setEmail] = useState('');
+    const [pending, setPending] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    async function submit(event: React.FormEvent) {
+        event.preventDefault();
+        setPending(true);
+        try {
+            const providers = await getProviders();
+            if (providers?.email) await signIn('email', { email, redirect: false, callbackUrl: '/app' });
+        }
+        catch { /* Keep response independent of address eligibility and delivery status. */ }
+        finally { setSubmitted(true); setPending(false); }
+    }
+    return <main className="min-h-screen flex items-center justify-center p-6">
+        <section className="w-full max-w-md rounded-2xl border border-slate-300 bg-white p-8 text-slate-900">
+            <Link href="/" className="font-semibold">Sairam Certify</Link>
+            <h1 className="text-3xl font-semibold mt-8 mb-3">Sign in with email</h1>
+            <p className="mb-6">Access is limited to approved institutional issuers.</p>
+            <form onSubmit={submit} className="flex flex-col gap-4">
+                <label htmlFor="email">Email address</label>
+                <input id="email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} className="border rounded-lg p-3" />
+                <button disabled={pending} className="rounded-lg bg-slate-900 text-white p-3 disabled:opacity-50">{pending ? 'Requesting link…' : 'Request sign-in link'}</button>
+            </form>
+            {submitted && <p role="status" className="mt-5">If this address is approved and sign-in is available, a link will arrive shortly. Check your inbox and spam folder. If it does not arrive, contact your administrator.</p>}
+            <p className="mt-5 text-sm">Links expire after 15 minutes and can be used once. Signing in does not automatically grant permission to issue certificates.</p>
+        </section>
+    </main>;
 }

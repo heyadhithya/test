@@ -1,0 +1,1 @@
+PASS desktop/mobile email form; generic disabled-state response; no mail sent

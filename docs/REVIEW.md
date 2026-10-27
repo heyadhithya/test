@@ -7,3 +7,7 @@ A second review examined new issuance code and identified retry duplicate handli
 Final reviewer conclusion: no remaining blocker for publishing a review branch with issuance disabled. Production still requires isolated integration/configuration, real database/storage integration and operational capacity proof. This is not a production approval.
 
 A further independent review covered the patched dependency tree, real auth typings, exact-origin redirects, disabled SMTP, conflict-safe Prisma reservation, private-download/registry tests and fresh-schema draft. Fourteen tests, clean lint, typecheck, build and zero-advisory audit are recorded. Final delta review found no new blocker for review-branch publication. The SQL draft remains unapplied and issuance disabled until approved isolated configuration and integration tests.
+
+## Email-link review
+
+Independent security_review inspected NextAuth internals, the new provider, auth route, login UI and tests. Fixed alternate catchall paths bypassing request admission. Reviewer confirmed signed CSRF checks, random token generation, hashed persistence, expiry/identifier checks and single-use consumption. Cleared for review-branch publication with auth disabled, not production activation. Remaining gates: distributed admission, expired token cleanup, approved credentials/sender, real delivery/session tests, synchronous timing disclosure and existing-JWT revocation policy. Browser testing additionally caught disabled-provider navigation; login now checks provider availability and displays the same generic message.

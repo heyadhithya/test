@@ -2,30 +2,34 @@
 > sairam-ecosystem-certifications@0.1.0 test
 > node --test tests/*.test.mjs
 
-✔ guest PDF generation omits QR assets and handles absent settings (255.443973ms)
-✔ legacy admin fails closed (4.020821ms)
-✔ limits remain upstream defaults (8.490898ms)
-✔ generation forces guest QR off and uses configured origin (0.518861ms)
-✔ no known admin master password or forced upstream auth origin (0.271608ms)
-✔ persistent issuance retries preserve ID and never verify before upload (8.693622ms)
-✔ private storage rejects public buckets and recovers exact duplicate uploads (12.304736ms)
-✔ stable PDF bytes support upload retry comparison (84.924328ms)
-✔ request digest frames input and binds origin and render version (5.54252ms)
-✔ redirects reject lookalike origins, protocol-relative attackers and script URLs (3.420477ms)
-✔ private PDF handler enforces configured state, auth and owner query (6.357537ms)
-✔ registry does not verify pending, missing-PDF or revoked credentials and omits private fields (3.969874ms)
-✔ concurrent issuance converges; DB failure after upload retries same object (5.496061ms)
-✔ Prisma batch adapter uses conflict-safe reservation and exposes only owner download URLs (15.70951ms)
-ℹ tests 14
+✔ strict email normalization, configured allowlist and separate readiness (1.57887ms)
+✔ bounded limiter enforces cooldown, hourly limit and expiration (0.392221ms)
+✔ delivery rejects hostile origin and fails closed without leaking provider errors (2.719919ms)
+✔ auth callbacks enforce allowlist at consumption and preserve session owner IDs (19.864295ms)
+✔ installed NextAuth consumes token atomically and rejects replay, expiry and identifier mismatch (58.566648ms)
+✔ installed NextAuth creates hashed expiring tokens and rejects send failures (1.339729ms)
+✔ email request wrapper bounds handler calls and hides provider errors without bypassing handler CSRF checks (16.641397ms)
+✔ installed NextAuth rejects missing CSRF before sending or writing tokens (13.129336ms)
+✔ HTTP transport accepts only provider acknowledgement and sends a single approved recipient (0.616919ms)
+✔ guest PDF generation omits QR assets and handles absent settings (271.7894ms)
+✔ legacy admin fails closed (4.971783ms)
+✔ limits remain upstream defaults (9.935162ms)
+✔ generation forces guest QR off and uses configured origin (0.452091ms)
+✔ no known admin master password or forced upstream auth origin (0.270187ms)
+✔ persistent issuance retries preserve ID and never verify before upload (9.059552ms)
+✔ private storage rejects public buckets and recovers exact duplicate uploads (11.915446ms)
+✔ stable PDF bytes support upload retry comparison (97.136535ms)
+✔ request digest frames input and binds origin and render version (6.91461ms)
+✔ redirects reject lookalike origins, protocol-relative attackers and script URLs (3.392382ms)
+✔ private PDF handler enforces configured state, auth and owner query (6.261265ms)
+✔ registry does not verify pending, missing-PDF or revoked credentials and omits private fields (4.555074ms)
+✔ concurrent issuance converges; DB failure after upload retries same object (4.583687ms)
+✔ Prisma batch adapter uses conflict-safe reservation and exposes only owner download URLs (12.931918ms)
+ℹ tests 23
 ℹ suites 0
-ℹ pass 14
+ℹ pass 23
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 730.29107
-npm notice
-npm notice New major version of npm available! 11.9.0 -> 12.2.1
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
-npm notice To update run: npm install -g npm@12.2.1
-npm notice
+ℹ duration_ms 794.084836

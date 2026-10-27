@@ -1,128 +1,28 @@
-import { trustedRedirect } from "./security";
-import { NextAuthOptions } from "next-auth";
-import type { Adapter } from "next-auth/adapters";
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import prisma from "@/lib/prisma";
-import bcrypt from "bcryptjs";
-import { loginSchema } from "@/lib/validations";
-
-
-
-import {
-    clearFailedAttempts,
-    // getRateLimitKey, // Not directly used in this file for IP extraction
-    isBlocked,
-    recordFailedAttempt,
-    AUTH_RATE_LIMIT_MESSAGE,
-} from "@/lib/rate-limit";
+import { trustedRedirect } from './security';
+import { allowedEmail, emailProvider } from './email-auth';
+import type { NextAuthOptions } from 'next-auth';
+import type { Adapter } from 'next-auth/adapters';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import prisma from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma) as Adapter,
-
-    providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID || "",
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-        }),
-
-        CredentialsProvider({
-            name: "Credentials",
-
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" },
-            },
-
-            authorize: async (credentials, req) => {
-                // Always return null or generic error to prevent user enumeration
-                const failAuth = () => {
-                    // recordFailedAttempt is called before returning null to ensure rate limiting works
-                    recordFailedAttempt(rateLimitKey); 
-                    return null; // Return null for generic NextAuth error message
-                }
-
-                if (!credentials || !credentials.email || !credentials.password) {
-                    // No explicit rate limiting here, as email is not fully trusted yet
-                    return null; 
-                }
-
-                // --- Robust IP extraction for Rate Limiting ---
-                // Be aware that `x-forwarded-for` can be spoofed. For production, 
-                // use a trusted proxy to set specific headers or retrieve client IP more reliably.
-                const forwardedFor = req?.headers?.["x-forwarded-for"];
-                let ip = "unknown";
-
-                if (typeof forwardedFor === 'string') {
-                    ip = forwardedFor.split(',')[0].trim();
-                } else if (Array.isArray(forwardedFor)) {
-                    ip = forwardedFor[0]?.trim() || "unknown";
-                }
-                // Combine IP with email for a more specific rate limit key
-                const rateLimitKey = `${ip}:${credentials.email.toLowerCase()}`;
-
-                const blockStatus = isBlocked(rateLimitKey);
-                if (blockStatus.blocked) {
-                    // Optionally, log this attempt for monitoring
-                    console.warn(`Rate limit blocked for ${credentials.email} (IP: ${ip})`);
-                    // Returning null prevents further processing and NextAuth will show a generic error
-                    throw new Error(AUTH_RATE_LIMIT_MESSAGE); // Throwing for explicit error message to user
-                }
-
-                // Validate input shape using Zod (server-side validation)
-                const parsed = loginSchema.safeParse(credentials);
-
-                if (!parsed.success) {
-                    // Log the validation error internally but return a generic error to the client
-                    console.warn(`Invalid credentials schema for ${credentials.email}:`, parsed.error.issues);
-                    // Throw a generic error or return null to avoid leaking validation specifics
-                    throw new Error("Invalid email or password."); 
-                }
-
-                const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-                if (!user || !user.password) {
-                    return failAuth(); // User not found or no password set (e.g., OAuth user without credential password)
-                }
-
-                const isPasswordValid = await bcrypt.compare(parsed.data.password, user.password);
-                if (!isPasswordValid) {
-                    return failAuth(); // Incorrect password
-                }
-
-                // If login is successful, clear any failed attempt records for this key
-                clearFailedAttempts(rateLimitKey);
-
-                // Return the user object, ensuring it has an 'id' property
-                return { id: user.id, name: user.name, email: user.email }; // Explicitly return only necessary user data
-            },
-        }),
-    ],
-
-    session: {
-        strategy: "jwt",
-    },
-
+    providers: [emailProvider],
+    session: { strategy: 'jwt' },
+    // Avoid logging tokens, addresses, provider responses or credentials.
+    logger: { error() { console.error('Authentication failed'); }, warn() {}, debug() {} },
     callbacks: {
+        async signIn({ user, email, account }) {
+            if (account?.provider !== 'email') return false;
+            // Requests are indistinguishable; callback authorization still requires the allowlist.
+            if (email?.verificationRequest) return true;
+            return allowedEmail(user.email);
+        },
         async session({ session, token }) {
-            if (session.user && token.sub) {
-                session.user.id = token.sub; // Ensure user.id is set in session
-            }
+            if (session.user && token.sub) session.user.id = token.sub;
             return session;
         },
-
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id; // Store user.id in JWT token
-            }
-            return token;
-        },
-
-        // Custom redirect for errors to ensure generic messages
-        async redirect({ url, baseUrl }) { return trustedRedirect(url, baseUrl); }
+        async redirect({ url }) { return trustedRedirect(url, process.env.NEXTAUTH_URL || ''); },
     },
-    pages: {
-        signIn: '/login',
-        error: '/login', // Redirect all errors back to the login page
-    }
+    pages: { signIn: '/login', error: '/login', verifyRequest: '/login?sent=1' },
 };
