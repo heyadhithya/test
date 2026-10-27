@@ -1,3 +1,9 @@
+## Downloadable generated demo kit
+
+`/demo/sairam-demo-certificates-10.zip` contains ten original generated sample PDFs plus a README. `/demo/sample-participation.pdf` is one sample. Their QR codes point to `/demo/verify/DEMO-001` through `DEMO-010`: static fictional sample references explicitly labelled NOT AN OFFICIAL CREDENTIAL. These routes never query the owner registry and do not claim authenticated issuance. Unknown demo IDs return404. All ten PDF QR codes were independently decoded and matched to their exact demo routes; all ten pages returned200 with the required disclaimer locally.
+
+Library prepared-upload helper returnedHTTP401 before any file creation; no alternate write was attempted. Authorized app asset hosting provides direct downloads. No real account identity is included in these assets.
+
 ## Verified QR defaults and ten-participant demo
 
 The generator now obtains server-side readiness from the authenticated immutable issuer ID, issuance configuration, database owner existence, and a live private-bucket metadata check. Only a ready signed-in issuer defaults to saved certificates with QR enabled. Local-only export is explicit; guests and unavailable storage cannot enable saved mode. QR and save controls stay coupled, and existing results retain their successful request mode when controls change. Email delivery is explicitly off.

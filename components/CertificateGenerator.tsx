@@ -479,6 +479,7 @@ const [previewLoading, setPreviewLoading] = useState(false);
             <a className="underline" href="/demo/sairam-participation-template.pdf" download>Demo certificate template (PDF)</a>
             <a className="underline" href="/demo/participants-10.xlsx" download>10 fictional participants (Excel)</a>
             <a className="underline" href="/demo/participants-10.csv" download>CSV</a>
+            <a className="underline" href="/demo/sairam-demo-certificates-10.zip" download>10 generated demo PDFs (ZIP)</a>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

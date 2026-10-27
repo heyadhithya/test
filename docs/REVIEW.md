@@ -35,3 +35,6 @@ Independent reviewer confirmed owner-scoped bounded queries, private download wi
 
 ## Ready-owner QR default review
 Independent reviewer confirmed server-only readiness and preserved endpoint issuer authorization. Fixed QR/save inconsistency and result relabeling after control changes. Readiness regression independently passed. Final real local password/session/Postgres/browser integration and ten QR pixel decodes passed. No outstanding bounded-diff blocker.
+
+## Generated demo reference review
+Independent reviewer confirmed exact static fictional IDs, unknown-ID404, explicit noncredential wording, and no database/auth access. Corrected ambiguous template/README wording about demo QR. Ten generated PDFs independently decoded and local route responses validated.
