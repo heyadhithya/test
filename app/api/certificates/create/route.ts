@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "node:crypto";
 import prisma from "@/lib/prisma";
 import { generateCertificate } from "@/lib/generateCertificate";
 import { uploadToS3 } from "@/lib/s3";
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     const owner = await prisma.user.findUnique({
-        where: { apiKey },
+        where: { apiKey: createHash("sha256").update(apiKey).digest("hex") },
         select: { id: true },
     });
 
@@ -121,6 +122,9 @@ export async function POST(req: NextRequest) {
             );
         }
         templateBuffer = await templateRes.arrayBuffer();
+        if (templateBuffer.byteLength > 10 * 1024 * 1024) {
+            throw new Error("Template PDF exceeds the 10 MB limit.");
+        }
     } catch (error) {
         const message = error instanceof Error ? error.message : "Could not reach templateUrl.";
         await prisma.certificate.update({
